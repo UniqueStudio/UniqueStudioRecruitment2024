@@ -33,7 +33,8 @@
   import { localeLanguage } from '../stores/localeLanguage';
   import uploadSvg from '../assets/upload.svg';
   import { isMobile } from '../stores/isMobile';
-  let editMode = false;
+  import { editMode } from '../stores/editMode';
+  
   let colleges = Object.keys(DEPARTMENTS);
   let isUploading = false;
   let showSignUpModal = false;
@@ -80,7 +81,7 @@
       uid = '',
       is_quick = false,
     } = $latestInfo || {});
-    editMode = false;
+    editMode.out();
   };
   const signUp = () => {
     if (
@@ -113,7 +114,7 @@
       .then(() => {
         Message.success($t('user.signUpSuccess'));
         showSignUpModal = false;
-        editMode = false;
+        editMode.out();
         return getInfo();
       })
       .then((res) => {
@@ -195,7 +196,7 @@
       Message.success($t('user.saveSuccess'));
     }
     isUploading = false;
-    editMode = false;
+    editMode.out();
   };
 </script>
 
@@ -216,7 +217,7 @@
       </p>
       <div class="flex items-center mb-[1rem]">
         <UserInfoTitle title={$t('user.basicInfo')} />
-        {#if editMode}
+        {#if $editMode}
           <div class="ml-auto flex items-center gap-[1rem]">
             <Button
               onClick={closeEditMode}
@@ -243,11 +244,11 @@
         {:else}
           <div
             on:click={() => {
-              editMode = !editMode;
+              editMode.in();
             }}
             class={cx([
               'ml-auto cursor-pointer text-blue-400 text-sm bg-blue-100 rounded-full p-[7px_20px] max-sm:p-[3px_12px] max-sm:w-[88px] h-[28px] max-sm:justify-center flex gap-[0.25rem] items-center',
-              editMode && 'hidden',
+              $editMode && 'hidden',
             ])}
           >
             <img src={edit} class="max-sm:hidden" alt="edit" />
@@ -256,7 +257,7 @@
         {/if}
       </div>
       <div class="flex mb-[1rem] -translate-y-2 w-full flex-row-reverse">
-        {#if editMode && $recruitment && $recruitment.uid !== $userInfo.applications[0]?.recruitment_id && new Date().getTime() >= new Date($recruitment.beginning).getTime() && new Date().getTime() <= new Date($recruitment.deadline).getTime()}
+        {#if !$editMode && $recruitment && $recruitment.uid !== $userInfo.applications[0]?.recruitment_id && new Date().getTime() >= new Date($recruitment.beginning).getTime() && new Date().getTime() <= new Date($recruitment.deadline).getTime()}
           <Popover style="white" direct="top" questionDirection="end">
             <Button
               onClick={() => (showSignUpModal = true)}
@@ -277,6 +278,9 @@
           necessary
           name={$t('user.name')}
           bind:content={$userInfo.name}
+          tips={$t("user.changeUserInfoTip")}
+          editMode={$editMode}
+          isDisabled={true}
         />
         <SingleSelectInfo
           necessary
@@ -286,14 +290,14 @@
         />
         <SingleSelectInfo
           necessary
-          {editMode}
+          editMode={$editMode}
           name={$t('user.grade')}
           bind:content={grade}
           selectItems={grades}
         />
         <SingleSelectInfo
           selectItems={colleges}
-          {editMode}
+          editMode={$editMode}
           onChange={() => (major = '')}
           necessary
           name={$t('user.college')}
@@ -302,13 +306,13 @@
         <SingleSelectInfo
           placeholder={majors.length ? '' : '请选择学院'}
           selectItems={majors}
-          {editMode}
+          editMode={$editMode}
           necessary
           name={$t('user.major')}
           bind:content={major}
         />
         <SingleSelectInfo
-          {editMode}
+          editMode={$editMode}
           necessary
           name={$t('user.rank')}
           bind:content={rank}
@@ -318,19 +322,23 @@
           necessary
           name={$t('user.phone')}
           bind:content={$userInfo.phone}
+          isDisabled={true}
         />
         <SingleInputInfo
           necessary
           name={$t('user.email')}
           bind:content={$userInfo.email}
+          tips={$t("user.changeUserInfoTip")}
+          editMode={$editMode}
+          isDisabled={true}
         />
         <SingleInputInfo
-          {editMode}
+          editMode={$editMode}
           name={$t('user.recommender')}
           bind:content={referrer}
         />
         <SingleSelectInfo
-          editMode={editMode &&
+          editMode={$editMode &&
             (!$recruitment ||
               $userInfo?.applications[0]?.recruitment_id !== $recruitment.uid)}
           necessary
@@ -348,7 +356,7 @@
             <SingleSelectInfo
               className="flex-shrink-0 max-sm:w-[calc(100%_-_24px)]"
               slot="children"
-              {editMode}
+              editMode={$editMode}
               necessary
               name={$t('user.isQuick')}
               bind:content={isQuick}
@@ -363,11 +371,11 @@
           </p>
           <textarea
             bind:value={intro}
-            disabled={!editMode}
+            disabled={!$editMode}
             placeholder={$t('user.placeholder')}
             class={cx([
               'w-full max-sm:text-xs transition-all outline-none border-[1px] focus:border-[#165DFF] resize-none rounded-[8px] p-[0.75rem_1rem] bg-[#FAFAFA] h-[10rem]',
-              editMode
+              $editMode
                 ? 'bg-transparent border-gray-200'
                 : 'border-transparent',
             ])}
@@ -379,7 +387,7 @@
       <div
         class="sm:flex sm:justify-center bg-[#FAFAFA] rounded-[1rem] max-sm:rounded-[4px] py-[2rem] max-sm:p-[18px] items-center flex-col gap-[1rem]"
       >
-        {#if editMode}
+        {#if $editMode}
           <div
             on:click={() => fileInput.click()}
             class="flex sm:hidden gap-[1rem]"

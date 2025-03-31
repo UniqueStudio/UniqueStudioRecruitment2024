@@ -8,6 +8,7 @@ export const i18nConstants = {
       info: "Resume",
       avatar: "Change avatar",
       logout: "Log out",
+      userSettings:"User Settings",
       language: "language",
       getInfoFailed: "get info failed"
     },
@@ -89,6 +90,7 @@ export const i18nConstants = {
       edit: "edit",
       email: "email",
       recommender: "recommender",
+      changeUserInfoTip:"If you want to modify this field, click the avatar at the top right, select “User Settings” and proceed to SSO to make the changes.",
       name: "name",
       gender: "gender",
       grade: "grade",
@@ -144,6 +146,7 @@ export const i18nConstants = {
       info: "个人信息",
       avatar: "更换头像",
       logout: "退出登录",
+      userSettings:"用户设置",
       language: "语言",
       getInfoFailed: "获取信息失败"
     },
@@ -228,6 +231,7 @@ export const i18nConstants = {
       saveFailed: "保存失败",
       signUpSuccess: "报名成功",
       signUpFail: "报名失败",
+      changeUserInfoTip:"如果想修改此字段，点击右上角头像选择“用户设置”前往SSO修改",
       name: "姓名",
       major: "专业",
       gender: "性别",

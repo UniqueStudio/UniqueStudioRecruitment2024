@@ -10,6 +10,8 @@
   import { localeLanguage } from '../../stores/localeLanguage';
   import { LANGUAGES } from '../../config/const';
   import { i18nConstants } from '../../config/i18n';
+  import { editMode } from '../../stores/editMode';
+  import { Message } from '../../utils/Message';
   export let hide = true;
   const dispatch = createEventDispatcher();
   let openLanguage = false;
@@ -48,7 +50,13 @@
   </div>
   {#each router as item}
     <div
-      on:click={() => push(item.location)}
+    on:click={() => {
+      if ($editMode) {
+        Message.warning("请先退出编辑模式，以防数据丢失");
+        return;
+      }
+      push(item.location);
+    }}
       class={cx([
         'h-[62px] p-[20px_16px]',
         $location === item.location && 'text-blue-400 bg-gray-100',
