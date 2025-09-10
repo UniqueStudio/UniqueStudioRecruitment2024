@@ -29,6 +29,7 @@
   import { getDepartments } from './requests/config/getDepartments';
   import { departments } from './stores/departments';
   import { parseDepartments } from './utils/parseDepartments';
+  import { DEPARTMENTS } from "./config/const"
   let canvas = document.createElement('canvas');
   let deleted = false;
   const easterEgg = (e: KeyboardEvent) => {
@@ -106,9 +107,9 @@
         }
         Message.error($t('header.getInfoFailed'));
       });
-  $departments.length || getDepartments().then((resp) => {
-    departments.setDepartments(parseDepartments(resp.data.nodes))
-  })
+  $departments.length || 
+    departments.setDepartments(DEPARTMENTS)
+  
   const handleRouterClick = (path: string) => {
     push(path);
   };
