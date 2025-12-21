@@ -55,7 +55,12 @@ export class Http {
     if (!res.ok) {
       const detail = (await res.json()) as ResponseType<null>;
       if(detail.msg === "authentication failed could not get uid") {
-        window.location.href = "https://sso2024.hustunique.com/login?from=join2024.hustunique.com";
+        // 调试模式不跳转，方便调试
+        if (import.meta.env.MODE!=="development"){
+          window.location.href = "https://sso2024.hustunique.com/login?from=join2024.hustunique.com";
+        }else{
+          console.error("登录错误，请手动设置 cookie,示例： document.cookie=\"SSO_SESSION=你的cookie\"");
+        }
       }
       throw new Error(detail.msg);
     }
@@ -164,7 +169,7 @@ export class Http {
 
 export const http = new Http({
   prefix: "",
-  apiEndpoint: "https://dev.back.recruitment2023.hustunique.com",
+  apiEndpoint: import.meta.env.VITE_HR_DOMAIN_BE,
   headers: {
     "Content-Type": "application/json",
     accept: "application/json, text/plain, */*"
