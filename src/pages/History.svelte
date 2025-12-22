@@ -31,7 +31,7 @@
   $: getStep = (application: Application) =>
     $t(`history.step.${application.step}`) as UserStep;
 
-  let applications = [];
+  let applications: any[] = [];
   let isLoading = false;
   
   $: $userInfo &&

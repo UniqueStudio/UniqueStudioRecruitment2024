@@ -1,54 +1,57 @@
 <script lang="ts">
   // @ts-nocheck
-  import { routes } from './router';
-  import logo from '/src/assets/logo.svg';
-  import title from './assets/title.svg';
-  import language from '/src/assets/language.svg';
-  import Router, { location, push } from 'svelte-spa-router';
-  import cx from 'clsx';
-  import { slide } from 'svelte/transition';
-  import menu from './assets/menu.svg';
-  import { onDestroy, onMount } from 'svelte';
-  import { getInfo } from './requests/user/getInfo';
-  import { userInfo } from './stores/userInfo';
-  import { Message } from './utils/Message';
-  import { recruitment } from './stores/recruitment';
-  import { getLatestRecruitment } from './requests/recruitment/getLatest';
-  import Groups from './icons/Groups.svelte';
-  import { latestInfo } from './stores/latestApplication';
-  import { LANGUAGES } from './config/const';
-  import { localeLanguage } from './stores/localeLanguage';
-  import { t } from './utils/t';
-  import { i18nConstants } from './config/i18n';
-  import SideBar from './components/history/SideBar.svelte';
-  import { isMobile } from './stores/isMobile';
-  import font from 'figlet/importable-fonts/3D-ASCII';
-  import figlet from 'figlet';
-  import chalk from 'chalk';
-  import { drawFireWork } from './utils/firework';
-  import { getDepartments } from './requests/config/getDepartments';
-  import { departments } from './stores/departments';
-  import { parseDepartments } from './utils/parseDepartments';
-  let canvas = document.createElement('canvas');
+  import { routes } from "./router";
+  import logo from "/src/assets/logo.svg";
+  import title from "./assets/title.svg";
+  import language from "/src/assets/language.svg";
+  import Router, { location, push } from "svelte-spa-router";
+  import cx from "clsx";
+  import { slide, fly } from "svelte/transition";
+  import menu from "./assets/menu.svg";
+  import { onDestroy, onMount } from "svelte";
+  import { getInfo } from "./requests/user/getInfo";
+  import { userInfo } from "./stores/userInfo";
+  import { Message } from "./utils/Message";
+  import { recruitment } from "./stores/recruitment";
+  import { getLatestRecruitment } from "./requests/recruitment/getLatest";
+  import Groups from "./icons/Groups.svelte";
+  import { latestInfo } from "./stores/latestApplication";
+  import { LANGUAGES } from "./config/const";
+  import { localeLanguage } from "./stores/localeLanguage";
+  import { t } from "./utils/t";
+  import { i18nConstants } from "./config/i18n";
+  import SideBar from "./components/history/SideBar.svelte";
+  import { isMobile } from "./stores/isMobile";
+  import font from "figlet/importable-fonts/3D-ASCII";
+  import figlet from "figlet";
+  import chalk from "chalk";
+  import { drawFireWork } from "./utils/firework";
+  import { getDepartments } from "./requests/config/getDepartments";
+  import { departments } from "./stores/departments";
+  import { parseDepartments } from "./utils/parseDepartments";
+  import { globalLoading } from "./stores/globalLoading";
+  import { editMode } from './stores/editMode';
+
+  let canvas = document.createElement("canvas");
   let deleted = false;
   const easterEgg = (e: KeyboardEvent) => {
-    if (e.shiftKey && e.ctrlKey && e.code === 'KeyU') {
+    if (e.shiftKey && e.ctrlKey && e.code === "KeyU") {
       drawFireWork(canvas, deleted);
       deleted = !deleted;
     }
   };
 
-  figlet.parseFont('3d', font);
+  figlet.parseFont("3d", font);
   figlet
-    .text('Unique Studio', { font: '3d' }, () => {})
+    .text("Unique Studio", { font: "3d" }, () => {})
     .then((text: string) => {
       console.log(
         chalk.cyan(text) +
-          '\n' +
-          chalk.blue('听说按下 ctrl + shift + u 会有神奇的事发生~') +
-          '\n' +
-          chalk.yellow('developed by Unique Web ') +
-          chalk.green('@HUST-SE-LY @willburwwb @yqaty @Yuukirn')
+          "\n" +
+          chalk.blue("听说按下 ctrl + shift + u 会有神奇的事发生~") +
+          "\n" +
+          chalk.yellow("developed by Unique Web ") +
+          chalk.green("@HUST-SE-LY @willburwwb @yqaty @Yuukirn"),
       );
     });
 
@@ -77,47 +80,73 @@
   const i18nKeys = Object.keys(i18nConstants) as (keyof typeof i18nConstants)[];
   ($userInfo && $latestInfo) ||
     getInfo()
-      .then((res) => {
+      .then(res => {
         userInfo.setInfo(res.data);
         !$latestInfo && res.data.applications[0] &&
-          latestInfo.setApplication(res.data.applications[0]);
+          latestInfo.setApplication(res.data);
       })
       .catch((err) => {
-        if (err.message === 'authentication failed could not get uid') {
+        if (err.message === "authentication failed could not get uid") {
           return;
         }
-        Message.error($t('header.getInfoFailed'));
+        Message.error($t("header.getInfoFailed"));
       })
       .finally(() => {
         isLoading = false;
       });
   $recruitment ||
     getLatestRecruitment()
-      .then((res) => {
+      .then(res => {
         recruitment.setRecruitments(res.data);
       })
-      .catch((err) => {
+      .catch(err => {
         if (
-          err.message === 'authentication failed could not get uid' ||
+          err.message === "authentication failed could not get uid" ||
           err.message ===
             `ERROR: invalid input syntax for type uuid: \\"\\" (SQLSTATE 22P02)`
         ) {
           return;
         }
-        Message.error($t('header.getInfoFailed'));
+        Message.error($t("header.getInfoFailed"));
       });
-  $departments.length || getDepartments().then((resp) => {
-    departments.setDepartments(parseDepartments(resp.data.nodes))
-  })
+
+  $departments.length ||
+    getDepartments()
+      .then(resp => parseDepartments(resp.data.nodes))
+      .then(resp => {
+        const keys = Object.keys(resp);
+        if (keys.length <= 10) {
+          throw Error("专业个数过少");
+        }
+        const firstKey = keys[0];
+        if (typeof firstKey !== "string") {
+          throw Error("firstKey 应为 string");
+        }
+        if (!Array.isArray(resp[firstKey])) {
+          throw Error("元素不为数组");
+        }
+      })
+      .catch(async (e: Error) => {
+        console.error("解析 飞书 专业列表报错：", e.message, "进入fallback");
+        // 动态导入
+        return (await import("./config/DEPARTMENTS")).default;
+      })
+      .then(departments.setDepartments);
+
   const handleRouterClick = (path: string) => {
+    if ($editMode){
+      Message.warning("请先退出编辑模式，以防数据丢失");
+      return;
+    }
+
     push(path);
   };
   const unsubscribeLocaleLanguage = localeLanguage.subscribe(() => {
     if (tabLine && user && home) {
       Promise.resolve().then(() => {
-        tabLine.style.width = `${$location === '/user' ? user.clientWidth : home.clientWidth}px`;
+        tabLine.style.width = `${$location === "/user" ? user.clientWidth : home.clientWidth}px`;
         tabLine.style.transform =
-          $location === '/user'
+          $location === "/user"
             ? `translateX(${home.clientWidth + 32}px)`
             : `translateX(0px)`;
       });
@@ -126,20 +155,20 @@
   const unsubscribeLocation = location.subscribe(() => {
     if (tabLine && user && home) {
       Promise.resolve().then(() => {
-        tabLine.style.width = `${$location === '/user' ? user.clientWidth : home.clientWidth}px`;
+        tabLine.style.width = `${$location === "/user" ? user.clientWidth : home.clientWidth}px`;
         tabLine.style.transform =
-          $location === '/user'
+          $location === "/user"
             ? `translateX(${home.clientWidth + 32}px)`
             : `translateX(0px)`;
       });
     }
   });
   onMount(() => {
-    window.addEventListener('scroll', handleScroll, false);
-    window.addEventListener('keydown', easterEgg);
-    tabLine.style.width = `${$location === '/user' ? user.clientWidth : home.clientWidth}px`;
+    window.addEventListener("scroll", handleScroll, false);
+    window.addEventListener("keydown", easterEgg);
+    tabLine.style.width = `${$location === "/user" ? user.clientWidth : home.clientWidth}px`;
     tabLine.style.transform =
-      $location === '/user'
+      $location === "/user"
         ? `translateX(${home.clientWidth + 32}px)`
         : `translateX(0px)`;
   });
@@ -147,8 +176,8 @@
   onDestroy(() => {
     unsubscribeLocaleLanguage();
     unsubscribeLocation();
-    window.removeEventListener('scroll', handleScroll);
-    window.removeEventListener('keydown', easterEgg);
+    window.removeEventListener("scroll", handleScroll);
+    window.removeEventListener("keydown", easterEgg);
   });
 </script>
 
@@ -159,8 +188,8 @@
 >
   <div
     class={cx([
-      'py-[0.5rem] px-[4rem] max-lg:px-[3rem] sm:fixed sm:grid sm:grid-cols-3 max-sm:flex max-md:px-[1rem] bg-[rgba(49,84,174,0.58)] max-sm:bg-[#315ED0] w-full h-[5rem] top-0 left-0 z-20 transition-all duration-700',
-      hideTopBar ? 'translate-y-[-5rem]' : 'translate-y-0',
+      "py-[0.5rem] px-[4rem] max-lg:px-[3rem] sm:fixed sm:grid sm:grid-cols-3 max-sm:flex max-md:px-[1rem] bg-[rgba(49,84,174,0.58)] max-sm:bg-[#315ED0] w-full h-[5rem] top-0 left-0 z-20 transition-all duration-700",
+      hideTopBar ? "translate-y-[-5rem]" : "translate-y-0",
     ])}
   >
     <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
@@ -177,7 +206,7 @@
     >
       <div class="gap-[0.5rem] flex items-center">
         <img draggable={false} src={logo} alt="UniqueStudio" />
-        <p class="text-white mb-[0.5rem] text-lg">{$t('header.team')}</p>
+        <p class="text-white mb-[0.5rem] text-lg">{$t("header.team")}</p>
       </div>
     </a>
     <div class="w-full sm:hidden flex justify-center">
@@ -194,23 +223,23 @@
       <div
         bind:this={home}
         class="cursor-pointer"
-        on:click={() => handleRouterClick('/')}
+        on:click={() => handleRouterClick("/")}
       >
-        {$t('header.applications')}
+        {$t("header.applications")}
       </div>
       <!-- svelte-ignore a11y_click_events_have_key_events -->
       <div
         bind:this={user}
         class="cursor-pointer"
-        on:click={() => handleRouterClick('/user')}
+        on:click={() => handleRouterClick("/user")}
       >
-        {$t('header.info')}
+        {$t("header.info")}
       </div>
       <!-- svelte-ignore element_invalid_self_closing_tag -->
       <div
         bind:this={tabLine}
         class={cx([
-          'bg-white h-[3px] rounded-full absolute bottom-[-0.5rem] transition-all',
+          "bg-white h-[3px] rounded-full absolute bottom-[-0.5rem] transition-all",
         ])}
       />
     </div>
@@ -248,7 +277,7 @@
           <!-- svelte-ignore a11y_no_static_element_interactions -->
           <!-- svelte-ignore a11y_click_events_have_key_events -->
           <div
-            on:click={() => $isMobile || (showAvatarDetail = !showAvatarDetail)}
+            on:click={() => (showAvatarDetail = !showAvatarDetail)}
             class=" bg-white w-[40px] h-[40px] max-sm:w-[32px] max-sm:h-[32px] max-sm:leading-[32px] max-sm:text-[12px] rounded-full text-text-3 cursor-pointer leading-[40px] text-center"
           >
             {$userInfo.name[0]}
@@ -260,10 +289,16 @@
             >
               <button
                 on:click={() =>
+                  (window.location.href = "https://sso2024.hustunique.com/")}
+                class="max-md:h-[32px] h-[46px] hover:bg-gray-150 leading-[46px] max-md:leading-[32px] text-center w-full"
+                >{$t("header.accountManagement")}</button
+              >
+              <button
+                on:click={() =>
                   (window.location.href =
-                    'https://sso2024.hustunique.com/login?logout=true&from=join2024.hustunique.com')}
+                    "https://sso2024.hustunique.com/login?logout=true&from=join2024.hustunique.com")}
                 class="text-red-warning max-md:h-[32px] h-[46px] hover:bg-gray-150 leading-[46px] max-md:leading-[32px] text-center w-full"
-                >{$t('header.logout')}</button
+                >{$t("header.logout")}</button
               >
             </div>
           {/if}
@@ -276,8 +311,27 @@
   >
     <Groups />
   </div>
+  <div class="h-[80px] w-full sm:hidden"></div>
   <Router {routes} />
 </div>
+
+{#if $globalLoading}
+  <div
+    class="fixed inset-0 z-[100] flex items-center justify-center bg-white/20"
+  >
+    <div
+      transition:fly={{ y: 20, duration: 300 }}
+      class="flex flex-col items-center gap-4 rounded-xl bg-white p-8 shadow-2xl border border-gray-100"
+    >
+      <div
+        class="h-10 w-10 animate-spin rounded-full border-4 border-blue-400 border-t-transparent"
+      ></div>
+      <p class="text-base font-medium text-gray-700">
+        {$t("header.loading")}
+      </p>
+    </div>
+  </div>
+{/if}
 
 <div class="sm:hidden">
   <SideBar {hide} on:hide={() => (hide = true)} />
@@ -285,11 +339,11 @@
 
 <style>
   @font-face {
-    font-family: 'PingFang';
-    src: url('/PingFangSC-Regular.woff2');
+    font-family: "PingFang";
+    src: url("/PingFangSC-Regular.woff2");
   }
 
   * {
-    font-family: 'PingFang', sans-serif;
+    font-family: "PingFang", sans-serif;
   }
 </style>

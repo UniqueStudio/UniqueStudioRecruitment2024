@@ -67,9 +67,18 @@ export default {
           transform: "translateX(-50%) translateY(0px)",
         },
       },
+      spin: {
+        from: {
+          transform: "rotate(0deg)",
+        },
+        to: {
+          transform: "rotate(360deg)",
+        },
+      },
     },
     animation: {
       "fly-in": "fly-in 0.5s forwards",
+      spin: "spin 1s linear infinite",
     },
   },
   plugins: [],

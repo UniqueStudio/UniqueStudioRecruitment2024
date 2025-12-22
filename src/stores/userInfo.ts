@@ -8,14 +8,19 @@ const createUserStore = () => {
   const setInfo = (info: User) => {
     set(info);
   };
-  const updateInfo = (newInfo: EditableInfo) =>
+  const updateInfo = (newInfo: Omit<EditableInfo, "groups">) => // update all application which have the same recruitment_id with applications[0]
     update((prevInfo) =>
       produce<User>(prevInfo, (draft) => {
         Object.keys(newInfo).forEach((key) => {
           //ly: why group enum in backend can't be same with group enum in frontend?????WTF
-          key === "group"
-            ? (draft.applications[0][key] = newInfo[key].toLowerCase())
-            : (draft.applications[0][key] = newInfo[key]);
+          // key === "groups"
+          //   ? (draft.applications[0][key] = newInfo[key].map((item: string) => item.toLowerCase()))
+          //   : (draft.applications[0][key] = newInfo[key]);
+          draft.applications.forEach((_, ia) => {
+            if (draft.applications[ia].recruitment_id === draft.applications[0]?.recruitment_id) {
+              draft.applications[ia][key] = newInfo[key];
+            }
+          });
         });
       })
     );

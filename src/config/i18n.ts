@@ -1,4 +1,4 @@
-import { DEPARTMENTS, DEPARTMENTS_EN, GENDERS, GENDERS_EN, GRADE, GRADE_EN, NecessaryInfoTitle, NecessaryInfoTitleEn, Period, PeriodEn, ProcessState, ProcessStateEN, RANK, RANK_EN, RecruitmentName, RecruitmentNameEn, Step, StepEn, TIMELINE, TIMELINE_EN } from "./const";
+import { GENDERS, GENDERS_EN, GRADE, GRADE_EN, NecessaryInfoTitle, NecessaryInfoTitleEn, Period, PeriodEn, ProcessState, ProcessStateEN, RANK, RANK_EN, RecruitmentName, RecruitmentNameEn, Step, StepEn, TIMELINE, TIMELINE_EN } from "./const";
 
 export const i18nConstants = {
   "en-US": {
@@ -8,8 +8,11 @@ export const i18nConstants = {
       info: "Resume",
       avatar: "Change avatar",
       logout: "Log out",
+      userSettings:"User Settings",
+      accountManagement: "Manage Account",
       language: "language",
-      getInfoFailed: "get info failed"
+      getInfoFailed: "get info failed",
+      loading: "Loading..."
     },
     history: {
       records: "Application Records",
@@ -42,7 +45,8 @@ export const i18nConstants = {
         viewLink: "View the latest {writtenTest}",
         downloadError: "get written questionnaire failed or no questionnaire yet",
         uploadSuccess: "upload success",
-        uploadError: "upload failed"
+        uploadError: "upload failed",
+        myAnswer: "my answer",
       },
       timeSelector: {
         chooseSuccess: "Selection succeed",
@@ -73,7 +77,7 @@ export const i18nConstants = {
         input: "Fill out",
         change: "Edit ",
         viewLink: "View latest link",
-        uploadWrittenTest: "Upload answers",
+        uploadWrittenTest: "Upload ",
         selectWrittenTest: "Select answers",
         groupInterviewTips: "Group interviews will be conducted by students from the intended group. Please select a time first.",
         selectTime: "Select Time",
@@ -89,6 +93,7 @@ export const i18nConstants = {
       edit: "edit",
       email: "email",
       recommender: "recommender",
+      changeUserInfoTip:"If you want to modify this field, click the avatar at the top right, select “User Settings” and proceed to SSO to make the changes.",
       name: "name",
       gender: "gender",
       grade: "grade",
@@ -96,6 +101,7 @@ export const i18nConstants = {
       college: "college",
       isQuick: "SpeedRun",
       isQuickTips: "After sign up for SpeedRun, the written test process will be skipped, and there is no need to take the test after passing the group interview. If you do not pass the interview, you can continue with the normal process and participate in recruitment.",
+      groupTips: "You can 1. choose only one regular group 2. choose only the Blockchain group 3. choose one regular group and the Blockchain group",
       projectCTips: "What is Blockchain?",
       BlockchainTips: "For this recruitment, you can either apply specifically for the Blockchain group (by selecting it under 'Preferred Group'), or you can apply for other groups while also checking the option to participate in the Blockchain group.",
       quick: "yes",
@@ -132,11 +138,12 @@ export const i18nConstants = {
       necessary: NecessaryInfoTitleEn,
       selector: {
         rank: RANK_EN,
-        department: DEPARTMENTS_EN,
+        // department: DEPARTMENTS_EN,
         grade: GRADE_EN,
         gender: GENDERS_EN,
         isQuick: ["yes", "no"],
-        projectC: ["join", "disjoin"]
+        projectC: ["join", "disjoin"],
+        groupGroup: ["Regular Groups", "Blockchain Group"]
       }
     },
   },
@@ -147,8 +154,11 @@ export const i18nConstants = {
       info: "个人信息",
       avatar: "更换头像",
       logout: "退出登录",
+      userSettings:"用户设置",
+      accountManagement: "账号管理",
       language: "语言",
-      getInfoFailed: "获取信息失败"
+      getInfoFailed: "获取信息失败",
+      loading: "加载中..."
     },
     history: {
       records: "申请记录",
@@ -181,7 +191,8 @@ export const i18nConstants = {
         viewLink: "查看最新的{writtenTest}",
         downloadError: "获取笔试/问卷失败或暂无笔试/问卷",
         uploadSuccess: "上传成功",
-        uploadError: "上传失败"
+        uploadError: "上传失败",
+        myAnswer: "我的答案",
       },
       timeSelector: {
         chooseSuccess: "修改成功",
@@ -212,8 +223,8 @@ export const i18nConstants = {
         notSignUpTips: "请填写基础信息、意向组别、简历等用于报名，帮助我们更好地了解你。",
         signUpTips: "你已经成功报名{recruitment}{group}组，报名结束前你可以随时修改个人信息。",
         viewLink: "查看最新笔试/问卷",
-        uploadWrittenTest: "上传笔试结果",
-        selectWrittenTest: "选择笔试结果",
+        uploadWrittenTest: "上传 ",
+        selectWrittenTest: "选择作答文件",
         groupInterviewTips: "组面由意向组别的同学负责面试，请先选择时间",
         selectTime: "选择时间",
         confirm: "确定",
@@ -231,6 +242,7 @@ export const i18nConstants = {
       saveFailed: "保存失败",
       signUpSuccess: "报名成功",
       signUpFail: "报名失败",
+      changeUserInfoTip:"如果想修改此字段，点击右上角头像选择“用户设置”前往SSO修改",
       name: "姓名",
       major: "专业",
       gender: "性别",
@@ -238,6 +250,7 @@ export const i18nConstants = {
       college: "学院",
       isQuick: "是否快通",
       isQuickTips: "报名快速通道后，将跳过笔试流程，通过小组面试后无需进行熬测。若未通过面试，也可以继续进行正常流程参与招新",
+      groupTips: "意向组别选择。你可以 1.仅选择一个常规组别 2.仅选择 Blockchain 组别 3.选择一个常规组别并选择 Blockchain 组别",
       projectCTips: "什么是Blockchain?",
       BlockchainTips: "本次招新可以单独报名 Blockchain 组（在意向组别处选择），或者报名其他组别的同时勾选参加 Blockchain 计划",
       quick: "是",
@@ -268,11 +281,13 @@ export const i18nConstants = {
       necessary: NecessaryInfoTitle,
       selector: {
         rank: RANK,
-        department: DEPARTMENTS,
+        // yyf:似乎没用，移除
+        // department: DEPARTMENTS,
         grade: GRADE,
         gender: GENDERS,
         isQuick: ["是", "否"],
-        projectC: ["参加", "不参加"]
+        projectC: ["参加", "不参加"],
+        groupGroup: ["常规组别", "Blockchain 组"]
       }
     },
   },

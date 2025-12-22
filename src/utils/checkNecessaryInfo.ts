@@ -8,7 +8,7 @@ export const checkNecessaryInfo = derived(t, ($t) => (info: NecessaryInfo) => {
   let ok = true;
   Object.keys(info).forEach((key) => {
     if(key === "is_quick") return;
-    if(key === "group" && DeprecatedGroups.includes(info[key])) {
+    if(key === "groups" && info[key].some((g) => DeprecatedGroups.includes(g))) {
       ok = false;
       Message.error($t("user.checkDeprecatedGroups"));
     }

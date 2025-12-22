@@ -1,6 +1,5 @@
 import {
   RANK,
-  DEPARTMENTS,
   GENDERS,
   GRADE,
   TIMELINE,
@@ -9,12 +8,13 @@ import {
   ProcessState,
   ProcessStateEN,
 } from "../config/const";
+import type { DEPARTMENTS_Type } from "../config/DEPARTMENTS";
 
 export type ProcessState = (typeof ProcessState)[keyof typeof ProcessState] | (typeof ProcessStateEN)[keyof typeof ProcessStateEN]
 
-export type Major = (typeof DEPARTMENTS)[keyof typeof DEPARTMENTS];
+export type Major = (DEPARTMENTS_Type)[keyof DEPARTMENTS_Type];
 
-export type College = keyof typeof DEPARTMENTS;
+export type College = keyof DEPARTMENTS_Type;
 
 export type Gender = (typeof GENDERS)[number];
 
