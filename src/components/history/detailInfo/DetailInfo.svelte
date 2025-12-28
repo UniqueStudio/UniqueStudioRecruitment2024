@@ -21,10 +21,9 @@
 	import { globalLoading } from "../../../stores/globalLoading";
 	import { getInfo } from "../../../requests/user/getInfo";
 
-	let myWrittenTestAnswer = $userInfo?.applications[0]?.answer.split("/").at(-1);
-
 	export let step: UserStep;
 	export let applicationInfo: Application;
+	$: myWrittenTestAnswer = applicationInfo?.answer?.split("/").at(-1);
 	let selectedTimes = applicationInfo?.interview_selections?.map((el) => el.uid);
 	const handleClick = (e) => {
 		if (e.target.className.includes("go-user")) {
@@ -95,14 +94,14 @@
 	{#if step === $t("history.step.SignUp")}
 		<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 		<p on:click={handleClick}>
-			{#if $userInfo.applications[0]?.recruitment_id === $recruitment.uid}
+			{#if applicationInfo?.recruitment_id === $recruitment.uid}
 				{$t("history.signUpTips.SignInTips", {
-					group: Group[$userInfo.applications[0]?.group],
+					group: Group[applicationInfo.group],
 					recruitment: $parseTitle($recruitment.name)
 				}).split("{changeInfo}")[0]}<span class="text-blue-300 go-user cursor-pointer underline"
 					>{$t("history.signUpTips.changeInfo")}</span
 				>{$t("history.signUpTips.SignInTips", {
-					group: Group[$userInfo.applications[0]?.group],
+					group: Group[applicationInfo.group],
 					recruitment: $parseTitle($recruitment.name)
 				}).split("{changeInfo}")[1] || ""}
 			{:else}
