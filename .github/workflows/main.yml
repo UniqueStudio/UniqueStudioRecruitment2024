@@ -1,0 +1,65 @@
+name: Deploy via SSH
+
+on:
+#   push:
+#     branches:
+#       - main  # 或者改为你的主分支名称
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. 安装pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10  # 指定pnpm版本,可根据需要调整
+      
+      # 3. 设置Node.js环境
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'  # 根据你的项目需求调整版本
+          cache: 'pnpm'
+      
+      # 4. 安装依赖
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      # 5. 构建项目
+      - name: Build project
+        run: pnpm run build
+      
+      # 6. 上传构建文件到服务器
+      - name: Deploy to Server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "dist/*"  # Vue默认输出目录,根据实际情况调整
+          target: "/home/gh_ations_hr/join"  # 服务器目标路径
+          strip_components: 1  # 移除dist/前缀
+          overwrite: true
+          rm: true
+
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            # 在远程服务器上执行的命令
+            cd ~
+            date >> ations.log
+            rm -r /home/srv/join/*
+            mv ~/join/* /home/srv/join/
+            chgrp www-data -R /home/srv/join/*
+            # ... 其他部署命令 ...
