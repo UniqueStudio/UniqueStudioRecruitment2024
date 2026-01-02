@@ -19,7 +19,11 @@ const createLatestApplicationStore = () => {
 			)
 			.map((app) => app.group)
 			.filter((g) => g);
-		const info: ApplicationMutipleGroups = { ...userInfo.applications[0], groups };
+		const info: ApplicationMutipleGroups = {
+			...userInfo.applications[0],
+			groups,
+			qq_account: userInfo.qq_account
+		};
 		set(info);
 		localStorage.setItem("latest", JSON.stringify(info));
 	};

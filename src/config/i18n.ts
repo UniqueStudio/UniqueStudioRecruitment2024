@@ -28,7 +28,7 @@ export const i18nConstants = {
 			avatar: "Change avatar",
 			logout: "Log out",
 			userSettings: "User Settings",
-			accountManagement: "Manage Account",
+			accountManagement: "User Settings",
 			language: "language",
 			getInfoFailed: "get info failed",
 			loading: "Loading..."
@@ -117,6 +117,8 @@ export const i18nConstants = {
 			recommender: "recommender",
 			changeUserInfoTip:
 				"If you want to modify this field, click the avatar at the top right, select “User Settings” and proceed to SSO to make the changes.",
+			modifyBasicInfoTip:
+				"*Please modify basic information such as name, gender, QQ, etc. on the {link} page",
 			name: "name",
 			gender: "gender",
 			grade: "grade",
@@ -137,6 +139,7 @@ export const i18nConstants = {
 			signUpSuccess: "Sign up successfully",
 			signUpFail: "Sign up failed",
 			rank: "rank",
+			qq: "QQ",
 			phone: "phone",
 			group: "intention group",
 			selfIntro: "self introduction",
@@ -164,6 +167,7 @@ export const i18nConstants = {
 			resumePopover:
 				"You can upload resumes, portfolios, etc. If you want to upload multiple files, please compress them into .zip . Maximum size is 20MB",
 			checkInfo: "{key} is needed!",
+			checkQQ: "QQ account is invalid!",
 			checkDeprecatedGroups: "Group is not contained in current recruitment",
 			necessary: NecessaryInfoTitleEn,
 			selector: {
@@ -185,7 +189,7 @@ export const i18nConstants = {
 			avatar: "更换头像",
 			logout: "退出登录",
 			userSettings: "用户设置",
-			accountManagement: "账号管理",
+			accountManagement: "用户设置",
 			language: "语言",
 			getInfoFailed: "获取信息失败",
 			loading: "加载中..."
@@ -273,6 +277,7 @@ export const i18nConstants = {
 			signUpSuccess: "报名成功",
 			signUpFail: "报名失败",
 			changeUserInfoTip: "如果想修改此字段，点击右上角头像选择“用户设置”前往SSO修改",
+			modifyBasicInfoTip: "*请在{link}页面修改姓名、性别、QQ等基本信息",
 			name: "姓名",
 			major: "专业",
 			gender: "性别",
@@ -289,6 +294,7 @@ export const i18nConstants = {
 			quick: "是",
 			notQuick: "否",
 			rank: "加权排名",
+			qq: "QQ",
 			phone: "电话",
 			group: "意向组别",
 			selfIntro: "自我介绍",
@@ -311,6 +317,7 @@ export const i18nConstants = {
 				"请您仔细核对所填写的个人基本信息是否准确无误，并确认所有附件已正确上传。成功报名后，除了所选择的意向组别外，其他信息依然可以修改。",
 			resumePopover: "可以上传简历，作品集等，若要上传多个文件，请自行压缩成.zip。最大大小为20MB",
 			checkInfo: "请填写{key}",
+			checkQQ: "QQ号格式不正确",
 			checkDeprecatedGroups: "意向组别不在本次招新范围内，请重新选择",
 			necessary: NecessaryInfoTitle,
 			selector: {

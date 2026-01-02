@@ -41,6 +41,7 @@
 		rank = "",
 		referrer = "",
 		major = "",
+		qq_account = "",
 		institute = "",
 		groups = [],
 		grade = "",
@@ -56,6 +57,17 @@
 	$: grades = $t("user.selector.grade") as unknown as string[];
 	let isQuick = is_quick ? $t("user.quick") : $t("user.notQuick");
 	let isProjectC = is_project_c ? $t("user.selector.projectC")[0] : $t("user.selector.projectC")[1];
+	$: if ($userInfo?.qq_account || $latestInfo?.qq_account) {
+		qq_account = $userInfo?.qq_account || $latestInfo?.qq_account || "";
+	}
+	let qqError = "";
+	const validateQQ = () => {
+		if (qq_account && !/^[1-9][0-9]{4,10}$/.test(qq_account)) {
+			qqError = $t("user.checkQQ");
+		} else {
+			qqError = "";
+		}
+	};
 
 	localeLanguage.subscribe(() => {
 		Promise.resolve().then(() => {
@@ -65,6 +77,12 @@
 	$: quicks = $t("user.selector.isQuick") as unknown as string[];
 	// $: projectC = $t("user.selector.projectC") as unknown as string[];
 
+	$: groupGroupSelected = GroupGroup.map(
+		(group) => group.find((g) => groups.some((gg) => Group[gg] === g)) || ""
+	) as [string | null, string | null];
+
+	$: groupGroupTitles = $t("user.selector.groupGroup") as unknown as [string, string];
+
 	const downloadResume = () => {
 		getResume(uid, $userInfo?.applications[0]?.resume?.split("/").pop() || "个人简历");
 	};
@@ -73,6 +91,7 @@
 			rank = "",
 			referrer = "",
 			major = "",
+			qq_account = "",
 			institute = "",
 			groups = [],
 			grade = "",
@@ -93,6 +112,7 @@
 				groups,
 				grade,
 				intro,
+				qq_account,
 				is_quick: isQuick === $t("user.quick") ? true : false,
 				is_project_c: isProjectC === $t("user.selector.projectC")[0] ? true : false
 			})
@@ -107,6 +127,7 @@
 				for (const [key, value] of Object.entries({
 					rank,
 					major,
+					qq_account,
 					institute,
 					group,
 					grade,
@@ -145,6 +166,7 @@
 				rank,
 				major,
 				institute,
+				qq_account,
 				groups,
 				grade,
 				intro,
@@ -170,6 +192,7 @@
 				rank,
 				major,
 				institute,
+				qq_account,
 				grade,
 				intro,
 				referrer,
@@ -190,6 +213,7 @@
 					rank,
 					referrer,
 					major,
+					qq_account,
 					institute,
 					groups,
 					grade,
@@ -205,6 +229,7 @@
 				rank,
 				referrer,
 				major,
+				qq_account,
 				institute,
 				groups,
 				grade,
@@ -294,8 +319,9 @@
 			</div>
 			{#if $editMode}
 				<p class="text-text-4 mt-[-1rem] mb-[1rem]">
-					*请在<a class="text-blue-400" href="https://sso2024.hustunique.com/">账号管理</a
-					>页面修改姓名、性别等基本信息
+					{@html $t("user.modifyBasicInfoTip", {
+						link: `<a class="text-blue-400" href="https://sso2024.hustunique.com/">${$t("header.accountManagement")}</a>`
+					})}
 				</p>
 			{/if}
 			<div class=" lg:grid lg:grid-cols-2 mb-[2rem] w-full gap-[2rem]">
@@ -344,6 +370,15 @@
 					selectItems={ranks}
 				/>
 				<SingleInputInfo
+					editMode={$editMode}
+					necessary
+					on:blur={validateQQ}
+					errorMessage={qqError}
+					name={$t("user.qq")}
+					bind:content={qq_account}
+					isDisabled={true}
+				/>
+				<SingleInputInfo
 					necessary
 					name={$t("user.phone")}
 					bind:content={$userInfo.phone}
@@ -371,16 +406,14 @@
 								(!$recruitment || $userInfo?.applications[0]?.recruitment_id !== $recruitment.uid)}
 							necessary
 							name={$t("user.group")}
-							selectedItems={GroupGroup.map(
-								(group) => group.find((g) => groups.some((gg) => Group[gg] === g)) || ""
-							)}
+							selectedItems={groupGroupSelected}
 							onChange={(items) => {
 								groups = items
 									.map((item) => Object.entries(Group).find(([, v]) => v === item)?.[0])
 									.filter((g) => g);
 							}}
 							selectItems={GroupGroup}
-							columnTitles={$t("user.selector.groupGroup")}
+							columnTitles={groupGroupTitles}
 						/>
 						<p slot="content" class="w-[300px]">{$t("user.groupTips")}</p>
 					</Popover>

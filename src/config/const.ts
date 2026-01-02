@@ -44,7 +44,7 @@ export const Group = {
 	blockchain: GROUP.BLOCKCHAIN
 };
 
-export const GroupGroup = [
+export const GroupGroup: [string[], string[]] = [
 	[GROUP.WEB, GROUP.LAB, GROUP.AI, GROUP.GAME, GROUP.PM, GROUP.DESIGN, GROUP.MOBILE],
 	[GROUP.BLOCKCHAIN]
 ];
@@ -171,6 +171,7 @@ export const NecessaryInfoTitle = {
 	rank: "加权",
 	group: "意向组别",
 	groups: "意向组别",
+	qq_account: "QQ号",
 	intro: "自我介绍"
 } as const;
 
@@ -181,5 +182,6 @@ export const NecessaryInfoTitleEn = {
 	rank: "rank",
 	group: "intention group",
 	groups: "intention groups",
+	qq_account: "QQ Account",
 	intro: "Self introduction"
 } as const;
