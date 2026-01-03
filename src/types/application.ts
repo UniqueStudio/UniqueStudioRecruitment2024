@@ -14,6 +14,7 @@ export interface Application {
 	is_quick: boolean;
 	is_project_c?: boolean;
 	referrer: string;
+	qq_account?: string;
 	resume: string;
 	abandoned: boolean;
 	rejected: boolean;
@@ -45,7 +46,15 @@ export type ApplicationMutipleGroups = Omit<
 
 export type EditableInfo = Pick<
 	Application,
-	"grade" | "institute" | "major" | "rank" | "intro" | "referrer" | "is_quick" | "is_project_c"
+	| "grade"
+	| "institute"
+	| "major"
+	| "rank"
+	| "intro"
+	| "referrer"
+	| "is_quick"
+	| "is_project_c"
+	| "qq_account"
 > & { groups: string[] };
 
 export type NecessaryInfo = Omit<EditableInfo, "referrer">;

@@ -82,7 +82,18 @@
 		getInfo()
 			.then((res) => {
 				userInfo.setInfo(res.data);
-				if (!$latestInfo && res.data.applications[0]) latestInfo.setApplication(res.data);
+				if (!$latestInfo && res.data.applications[0]) {
+					latestInfo.setApplication(res.data);
+				} else if (
+					!$latestInfo?.qq_account &&
+					res.data.qq_account
+				) {
+					// ly: if qq_account is added to backend but not in localStorage, valid it
+					latestInfo.updateInfo({
+						groups: $latestInfo?.groups || [],
+						qq_account: res.data.qq_account
+					} as any);
+				}
 			})
 			.catch((err) => {
 				if (err.message === "authentication failed could not get uid") {

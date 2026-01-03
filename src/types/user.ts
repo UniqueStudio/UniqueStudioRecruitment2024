@@ -5,6 +5,7 @@ export interface User {
 	uid: string;
 	phone: string;
 	email: string;
+	qq_account?: string;
 	name: string;
 	avatar_url: string;
 	gender: number;

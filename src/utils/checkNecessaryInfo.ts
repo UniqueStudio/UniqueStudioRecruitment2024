@@ -20,6 +20,10 @@ export const checkNecessaryInfo = derived(t, ($t) => (info: NecessaryInfo) => {
 				})
 			);
 		}
+		if (key === "qq_account" && !/^[1-9][0-9]{4,10}$/.test(info[key] as string)) {
+			ok = false;
+			Message.error($t("user.checkQQ"));
+		}
 	});
 	return ok;
 });
