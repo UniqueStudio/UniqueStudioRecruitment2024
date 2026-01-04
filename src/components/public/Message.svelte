@@ -26,7 +26,7 @@
 {#if open}
 	<div
 		out:fade
-		class="animate-fly-in shadow-1 bg-white border-gray-border rounded-sm fixed top-[5rem] left-[50%] z-[9999] flex h-[40px] translate-x-[-50%] items-center gap-[8px] border-[1px] p-[9px_16px]"
+		class="fixed left-[50%] top-[5rem] z-[9999] flex h-[40px] translate-x-[-50%] animate-fly-in items-center gap-[8px] rounded-sm border-[1px] border-gray-border bg-white p-[9px_16px] shadow-1"
 	>
 		{#if type === "warning"}
 			<svg

@@ -85,9 +85,9 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<div class="max-sm:hidden rounded-lg bg-blue-100 mt-[3rem] w-full p-[20px_28px]">
+<div class="mt-[3rem] w-full rounded-lg bg-blue-100 p-[20px_28px] max-sm:hidden">
 	{#if step !== $t("history.step.Pass")}
-		<p class="font-bold text-lg mb-[1rem]">
+		<p class="mb-[1rem] text-lg font-bold">
 			{$t("history.currentProcess")}：{step}
 		</p>
 	{/if}
@@ -98,7 +98,7 @@
 				{$t("history.signUpTips.SignInTips", {
 					group: Group[applicationInfo.group],
 					recruitment: $parseTitle($recruitment.name)
-				}).split("{changeInfo}")[0]}<span class="text-blue-300 go-user cursor-pointer underline"
+				}).split("{changeInfo}")[0]}<span class="go-user cursor-pointer text-blue-300 underline"
 					>{$t("history.signUpTips.changeInfo")}</span
 				>{$t("history.signUpTips.SignInTips", {
 					group: Group[applicationInfo.group],
@@ -106,7 +106,7 @@
 				}).split("{changeInfo}")[1] || ""}
 			{:else}
 				{$t("history.signUpTips.notSignInTips").split("{changeInfo}")[0]}<span
-					class="text-blue-300 go-user cursor-pointer underline"
+					class="go-user cursor-pointer text-blue-300 underline"
 					>{$t("history.signUpTips.changeInfo")}</span
 				>{$t("history.signUpTips.notSignInTips").split("{changeInfo}")[1] || ""}
 			{/if}
@@ -138,11 +138,11 @@
 				>{$t("history.writeTest.viewLink").split("{writtenTest}")[1] || ""}
 			</p>
 			{#if myWrittenTestAnswer}
-				<div class="bg-white p-3 mt-5 mb-5 border-blue-200 shadow-sm rounded-[10px] border">
-					<p class="text-gray-500 mb-1 font-bold text-[1.1rem]">
+				<div class="border-blue-200 shadow-sm mb-5 mt-5 rounded-[10px] border bg-white p-3">
+					<p class="text-gray-500 mb-1 text-[1.1rem] font-bold">
 						{$t("history.writeTest.myAnswer")}
 					</p>
-					<p class="font-medium break-all">{myWrittenTestAnswer}</p>
+					<p class="break-all font-medium">{myWrittenTestAnswer}</p>
 				</div>
 			{/if}
 			<Button
@@ -202,6 +202,6 @@
 			<p class="text-lg">{$t("history.passTips")}</p>
 			<img class="inline" src={greet} alt="欢迎" />
 		</div>
-		<p class="text-gray-300 mt-[8px]">{$t("history.passSubTips")}</p>
+		<p class="mt-[8px] text-gray-300">{$t("history.passSubTips")}</p>
 	{/if}
 </div>

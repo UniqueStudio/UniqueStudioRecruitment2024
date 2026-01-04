@@ -246,17 +246,17 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<div class="max-xl:w-[80%] max-sm:w-full mx-auto flex h-full w-[60%] flex-col">
-	<p transition:fade class="max-sm:hidden text-white text-[26px]">
+<div class="mx-auto flex h-full w-[60%] flex-col max-xl:w-[80%] max-sm:w-full">
+	<p transition:fade class="text-[26px] text-white max-sm:hidden">
 		{$t("user.selfInfo")}
 	</p>
 	<div
 		in:fly={{ y: 50, duration: 500, delay: 500 }}
 		out:fly={{ y: 50, duration: 500 }}
-		class="max-sm:my-0 bg-white max-sm:rounded-none max-sm:p-[20px] max-lg:px-[80px] my-[1rem] w-[full] rounded-[20px] px-[55px] py-[30px]"
+		class="my-[1rem] w-[full] rounded-[20px] bg-white px-[55px] py-[30px] max-lg:px-[80px] max-sm:my-0 max-sm:rounded-none max-sm:p-[20px]"
 	>
 		{#if $userInfo}
-			<p transition:fade class="sm:hidden text-text font-bold mb-[1rem]">
+			<p transition:fade class="text-text mb-[1rem] font-bold sm:hidden">
 				{$t("user.selfInfo")}
 			</p>
 			<div class="mb-[1rem] flex items-center">
@@ -291,7 +291,7 @@
 							editMode.in();
 						}}
 						class={cx([
-							"text-blue-400 text-sm bg-blue-100 max-sm:p-[3px_12px] max-sm:w-[88px] max-sm:justify-center ml-auto flex h-[28px] cursor-pointer items-center gap-[0.25rem] rounded-full p-[7px_20px]",
+							"ml-auto flex h-[28px] cursor-pointer items-center gap-[0.25rem] rounded-full bg-blue-100 p-[7px_20px] text-sm text-blue-400 max-sm:w-[88px] max-sm:justify-center max-sm:p-[3px_12px]",
 							$editMode && "hidden"
 						])}
 					>
@@ -300,7 +300,7 @@
 					</div>
 				{/if}
 			</div>
-			<div class="-translate-y-2 mb-[1rem] flex w-full flex-row-reverse">
+			<div class="mb-[1rem] flex w-full -translate-y-2 flex-row-reverse">
 				{#if !$editMode && $recruitment && $recruitment.uid !== $userInfo.applications[0]?.recruitment_id && new Date().getTime() >= new Date($recruitment.beginning).getTime() && new Date().getTime() <= new Date($recruitment.deadline).getTime()}
 					<Popover style="white" direct="top" questionDirection="end">
 						<Button
@@ -318,13 +318,13 @@
 				{/if}
 			</div>
 			{#if $editMode}
-				<p class="text-text-4 mt-[-1rem] mb-[1rem]">
+				<p class="mb-[1rem] mt-[-1rem] text-text-4">
 					{@html $t("user.modifyBasicInfoTip", {
 						link: `<a class="text-blue-400" href="https://sso2024.hustunique.com/">${$t("header.accountManagement")}</a>`
 					})}
 				</p>
 			{/if}
-			<div class=" lg:grid lg:grid-cols-2 mb-[2rem] w-full gap-[2rem]">
+			<div class=" mb-[2rem] w-full gap-[2rem] lg:grid lg:grid-cols-2">
 				<SingleInputInfo
 					necessary
 					name={$t("user.name")}
@@ -433,7 +433,7 @@
 					</Popover>
 				</div>
 				<div class="col-span-2 flex gap-[1rem]">
-					<p class="max-sm:text-xs mt-[0.75rem] shrink-0">
+					<p class="mt-[0.75rem] shrink-0 max-sm:text-xs">
 						<span class="text-blue-300">*</span>{$t("user.selfIntro")}
 					</p>
 					<textarea
@@ -441,7 +441,7 @@
 						disabled={!$editMode}
 						placeholder={$t("user.placeholder")}
 						class={cx([
-							"max-sm:text-xs h-[10rem] w-full resize-none rounded-[8px] border-[1px] bg-[#FAFAFA] p-[0.75rem_1rem] transition-all outline-none focus:border-[#165DFF]",
+							"h-[10rem] w-full resize-none rounded-[8px] border-[1px] bg-[#FAFAFA] p-[0.75rem_1rem] outline-none transition-all focus:border-[#165DFF] max-sm:text-xs",
 							$editMode ? "border-gray-200 bg-transparent" : "border-transparent"
 						])}
 					/>
@@ -450,23 +450,23 @@
 			<div class="mb-[2rem] h-[1px] w-full bg-[#E5E6EB]" />
 			<UserInfoTitle title={$t("user.attachment")} />
 			<div
-				class="sm:flex sm:justify-center max-sm:rounded-[4px] max-sm:p-[18px] flex-col items-center gap-[1rem] rounded-[1rem] bg-[#FAFAFA] py-[2rem]"
+				class="flex-col items-center gap-[1rem] rounded-[1rem] bg-[#FAFAFA] py-[2rem] max-sm:rounded-[4px] max-sm:p-[18px] sm:flex sm:justify-center"
 			>
 				{#if $editMode}
-					<div on:click={() => fileInput.click()} class="sm:hidden flex gap-[1rem]">
+					<div on:click={() => fileInput.click()} class="flex gap-[1rem] sm:hidden">
 						<img src={uploadSvg} alt="upload" />
 						<div>
-							<p class="text-sm font-bold my-[4px]">{$t("user.upload")}</p>
-							<p class=" text-text-3 text-xs">
+							<p class="my-[4px] text-sm font-bold">{$t("user.upload")}</p>
+							<p class=" text-xs text-text-3">
 								{$t("user.resumePopover")}
 							</p>
 							{#if resume}
-								<p class="text-xs mt-[4px]">{resume.name}</p>
+								<p class="mt-[4px] text-xs">{resume.name}</p>
 							{/if}
 						</div>
 					</div>
-					<p class="font-bold max-sm:hidden text-lg">{$t("user.upload")}</p>
-					<p class="max-sm:hidden text-text-3 text-xs px-[3rem] text-center">
+					<p class="text-lg font-bold max-sm:hidden">{$t("user.upload")}</p>
+					<p class="px-[3rem] text-center text-xs text-text-3 max-sm:hidden">
 						{$t("user.resumePopover")}
 					</p>
 					{#if resume}
@@ -474,7 +474,7 @@
 					{:else if $recruitment && $userInfo.applications[0]?.recruitment_id === $recruitment.uid && $userInfo.applications[0].resume}
 						<div
 							on:click={downloadResume}
-							class="sm:flex-col flex cursor-pointer items-center justify-center gap-[8px]"
+							class="flex cursor-pointer items-center justify-center gap-[8px] sm:flex-col"
 						>
 							<img src={word} alt="简历" />
 							{#await getRecruitmentById($userInfo.applications[0].recruitment_id) then res}
@@ -485,7 +485,7 @@
 						</div>
 					{/if}
 					<div
-						class="max-sm:hidden hover:text-white cursor-pointer rounded-[0.5rem] border-[1px] border-[#0A84FF] p-[0.5rem_2rem] text-[#0A84FF] transition-all hover:bg-[#0A84FF]"
+						class="cursor-pointer rounded-[0.5rem] border-[1px] border-[#0A84FF] p-[0.5rem_2rem] text-[#0A84FF] transition-all hover:bg-[#0A84FF] hover:text-white max-sm:hidden"
 						on:click={() => fileInput.click()}
 					>
 						{resume ? $t("user.reselect") : $t("user.select")}
@@ -507,7 +507,7 @@
 				{:else if $recruitment && $userInfo.applications[0]?.recruitment_id === $recruitment.uid && $userInfo.applications[0]?.resume}
 					<div
 						on:click={downloadResume}
-						class="sm:flex-col flex cursor-pointer items-center justify-center gap-[8px]"
+						class="flex cursor-pointer items-center justify-center gap-[8px] sm:flex-col"
 					>
 						<img src={word} alt="简历" />
 						{#await getRecruitmentById($userInfo.applications[0]?.recruitment_id) then res}
@@ -517,13 +517,13 @@
 						{/await}
 					</div>
 				{:else}
-					<p class="font-bold text-lg max-sm:text-sm text-gray-400 select-none">
+					<p class="text-gray-400 select-none text-lg font-bold max-sm:text-sm">
 						{$t("user.noResume")}
 					</p>
 				{/if}
 			</div>
 		{:else}
-			<p class="text-gray-250 text-2xl my-[2rem] text-center">暂无个人信息</p>
+			<p class="my-[2rem] text-center text-2xl text-gray-250">暂无个人信息</p>
 		{/if}
 		<Modal
 			className="w-[524px] max-sm:w-[280px] flex flex-col gap-[1rem] text-center p-[20px_20px]"

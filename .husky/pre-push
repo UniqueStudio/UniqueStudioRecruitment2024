@@ -1,0 +1,9 @@
+pnpm run check >&2
+if $?;then    
+    exit $?
+fi
+
+pnpm run eslint-check >&2
+if $?;then    
+    exit $?
+fi

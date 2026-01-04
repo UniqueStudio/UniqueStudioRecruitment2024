@@ -84,9 +84,9 @@
 </script>
 
 <div
-	class="max-lg:w-[70%] max-md-lg:w-[80%] max-sm:w-[calc(100%_-_40px)] relative mx-auto my-[1rem] flex h-full w-[60%] flex-col"
+	class="relative mx-auto my-[1rem] flex h-full w-[60%] flex-col max-lg:w-[70%] max-md-lg:w-[80%] max-sm:w-[calc(100%_-_40px)]"
 >
-	<p in:fade out:fade class="max-sm:text-text-1 max-sm:text-[18px] text-white text-[26px]">
+	<p in:fade out:fade class="text-[26px] text-white max-sm:text-[18px] max-sm:text-text-1">
 		{$t("history.records")}
 	</p>
 	<div in:fly={{ y: 50, duration: 500, delay: 500 }} out:fly={{ y: 50, duration: 500 }}>
@@ -101,9 +101,9 @@
 				/>
 			{:else if applications.length === 0 && !isLoading}
 				<div
-					class="bg-white max-sm:rounded-[6px] max-sm:p-[20px_18px] sm:shadow-card mt-[1rem] flex h-[290px] items-center justify-center rounded-[20px] p-[3rem_4rem]"
+					class="mt-[1rem] flex h-[290px] items-center justify-center rounded-[20px] bg-white p-[3rem_4rem] max-sm:rounded-[6px] max-sm:p-[20px_18px] sm:shadow-card"
 				>
-					<p class="text-gray-250 text-2xl">{$t("history.noRecord")}</p>
+					<p class="text-2xl text-gray-250">{$t("history.noRecord")}</p>
 				</div>
 			{/if}
 
@@ -119,9 +119,9 @@
 			{/each}
 		{:else}
 			<div
-				class="bg-white max-sm:rounded-[6px] max-sm:p-[20px_18px] sm:shadow-card mt-[1rem] flex h-[290px] items-center justify-center rounded-[20px] p-[3rem_4rem]"
+				class="mt-[1rem] flex h-[290px] items-center justify-center rounded-[20px] bg-white p-[3rem_4rem] max-sm:rounded-[6px] max-sm:p-[20px_18px] sm:shadow-card"
 			>
-				<p class="text-gray-250 text-2xl">{$t("history.noRecord")}</p>
+				<p class="text-2xl text-gray-250">{$t("history.noRecord")}</p>
 			</div>
 		{/if}
 	</div>

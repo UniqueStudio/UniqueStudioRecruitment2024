@@ -14,13 +14,13 @@
 		transition:fade
 		on:click={onCancel}
 		class={cx([
-			"top-0 max-sm:text-sm left-0 bg-black/60 fixed z-[100] flex h-screen w-screen items-center justify-center transition-all"
+			"fixed left-0 top-0 z-[100] flex h-screen w-screen items-center justify-center bg-black/60 transition-all max-sm:text-sm"
 		])}
 	>
 		<div
 			on:click={(e) => e.stopPropagation()}
 			transition:fly={{ y: 50, duration: 500 }}
-			class={cx(["bg-white rounded-[8px]", className])}
+			class={cx(["rounded-[8px] bg-white", className])}
 		>
 			<slot />
 		</div>

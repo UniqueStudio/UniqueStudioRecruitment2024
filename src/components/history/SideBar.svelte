@@ -36,7 +36,7 @@
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div
 	class={cx([
-		"bg-white top-0 left-0 fixed z-20 h-full w-[70%] transition-all duration-700",
+		"fixed left-0 top-0 z-20 h-full w-[70%] bg-white transition-all duration-700",
 		hide ? "translate-x-[-100%]" : "translate-x-0"
 	])}
 >
@@ -55,7 +55,7 @@
 			}}
 			class={cx([
 				"h-[62px] p-[20px_16px]",
-				$location === item.location && "text-blue-400 bg-gray-100"
+				$location === item.location && "bg-gray-100 text-blue-400"
 			])}
 		>
 			{$t(item.name)}
@@ -65,14 +65,14 @@
 		on:click={() => (openLanguage = !openLanguage)}
 		class={cx([
 			"flex h-[62px] items-center p-[20px_16px]",
-			openLanguage === true && "text-blue-400 bg-gray-100"
+			openLanguage === true && "bg-gray-100 text-blue-400"
 		])}
 	>
 		<p>{$t("header.language")}</p>
 		<!-- svelte-ignore a11y-missing-attribute -->
 		<img
 			src={arrow}
-			class={cx(["mt-[2px] ml-[16px] w-[16px]", openLanguage ? "rotate-0" : "rotate-180"])}
+			class={cx(["ml-[16px] mt-[2px] w-[16px]", openLanguage ? "rotate-0" : "rotate-180"])}
 		/>
 	</div>
 	{#if openLanguage}
@@ -84,7 +84,7 @@
 						openLanguage = false;
 						localeLanguage.updateLanguage(key);
 					}}
-					class="text-text-4 hover:bg-gray-150 h-[62px] w-full p-[20px_16px]"
+					class="h-[62px] w-full p-[20px_16px] text-text-4 hover:bg-gray-150"
 				>
 					{LANGUAGES[key]}
 				</div>
@@ -101,7 +101,7 @@
 		on:click={() =>
 			(window.location.href =
 				"https://sso2024.hustunique.com/login?logout=true&from=join2024.hustunique.com")}
-		class={cx(["text-red-warning h-[62px] p-[20px_16px]"])}
+		class={cx(["h-[62px] p-[20px_16px] text-red-warning"])}
 	>
 		{$t("header.logout")}
 	</div>
@@ -112,6 +112,6 @@
 	<div
 		on:click={close}
 		transition:fade
-		class={cx(["bg-black/60 top-0 left-0 fixed z-10 h-full w-full"])}
+		class={cx(["fixed left-0 top-0 z-10 h-full w-full bg-black/60"])}
 	></div>
 {/if}
