@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json",
+    "eslint-check":"eslint",
     "lint-staged": "pnpm exec lint-staged",
     "prepare": "husky",
     "lint": "eslint . && prettier --check .",
