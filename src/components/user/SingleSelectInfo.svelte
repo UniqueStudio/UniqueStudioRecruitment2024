@@ -32,9 +32,9 @@
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div
 	on:click={(e) => e.stopPropagation()}
-	class={cx(["max-lg:my-[1.5rem] flex items-center gap-[1rem]", className])}
+	class={cx(["flex items-center gap-[1rem] max-lg:my-[1.5rem]", className])}
 >
-	<p class="max-sm:text-sm shrink-0">
+	<p class="shrink-0 max-sm:text-sm">
 		{#if necessary}
 			<span class="text-blue-300">*</span>
 		{/if}{name}
@@ -49,9 +49,9 @@
 				showItems = !showItems;
 			}}
 			class={cx([
-				"text-text-1 max-sm:h-[42px] max-sm:text-sm bg-gray-50 relative flex h-[48px] w-full items-center rounded-[8px] border-[1px] p-[4px_12px] transition-all outline-none focus:border-[#165DFF]",
+				"relative flex h-[48px] w-full items-center rounded-[8px] border-[1px] bg-gray-50 p-[4px_12px] text-text-1 outline-none transition-all focus:border-[#165DFF] max-sm:h-[42px] max-sm:text-sm",
 				editMode
-					? "border-gray-200 cursor-pointer border-[1px] bg-transparent"
+					? "cursor-pointer border-[1px] border-gray-200 bg-transparent"
 					: "border-transparent"
 			])}
 		>
@@ -60,7 +60,7 @@
 				src={arrow}
 				alt="arrow"
 				class={cx([
-					" max-sm:hidden h-[16px] flex-shrink-0 transition-all",
+					" h-[16px] flex-shrink-0 transition-all max-sm:hidden",
 					showItems || "rotate-180",
 					editMode || "hidden"
 				])}
@@ -68,7 +68,7 @@
 		</div>
 		{#if showItems}
 			<div
-				class="max-sm:hidden shadow-card bg-white border-gray-150 shadow-lg shadow-gray-150 left-0 absolute top-[110%] z-10 max-h-[300px] w-full overflow-y-auto rounded-[4px] border-[1px] p-[0.75rem_1rem]"
+				class="shadow-lg absolute left-0 top-[110%] z-10 max-h-[300px] w-full overflow-y-auto rounded-[4px] border-[1px] border-gray-150 bg-white p-[0.75rem_1rem] shadow-card shadow-gray-150 max-sm:hidden"
 				transition:slide
 			>
 				{#if placeholder}
@@ -85,7 +85,7 @@
 							onChange(item);
 							showItems = false;
 						}}
-						class="hover:bg-gray-150 cursor-pointer rounded-[0.5rem] p-[0.5rem_0.75rem] transition-all"
+						class="cursor-pointer rounded-[0.5rem] p-[0.5rem_0.75rem] transition-all hover:bg-gray-150"
 					>
 						{item}
 					</p>
@@ -101,7 +101,7 @@
 	className="h-[200px] overflow-y-auto "
 >
 	{#if placeholder}
-		<p class="text-sm cursor-pointer rounded-[0.5rem] p-[1rem_0.75rem] opacity-50 transition-all">
+		<p class="cursor-pointer rounded-[0.5rem] p-[1rem_0.75rem] text-sm opacity-50 transition-all">
 			{placeholder}
 		</p>
 	{/if}
@@ -114,7 +114,7 @@
 				onChange(item);
 				showItems = false;
 			}}
-			class="border-b-gray-150 hover:bg-gray-150 mx-[3rem] cursor-pointer rounded-[0.5rem] border-b-[1px] p-[1rem_0.75rem] text-center transition-all"
+			class="mx-[3rem] cursor-pointer rounded-[0.5rem] border-b-[1px] border-b-gray-150 p-[1rem_0.75rem] text-center transition-all hover:bg-gray-150"
 		>
 			{item}
 		</p>

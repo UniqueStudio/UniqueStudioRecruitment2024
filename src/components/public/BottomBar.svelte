@@ -20,14 +20,14 @@
 {#if show}
 	<div
 		transition:slide
-		class={cx(["bg-white rounded-t-md text-sm bottom-0 left-0 fixed z-30 w-full transition-all"])}
+		class={cx(["fixed bottom-0 left-0 z-30 w-full rounded-t-md bg-white text-sm transition-all"])}
 	>
 		<div class="flex h-[53px] items-center p-[1rem]">
 			<p class="text-gray-300" on:click={close}>
 				{$t("history.mobile.cancel")}
 			</p>
 			{#if confirm}
-				<p class="text-blue-400 ml-auto" on:click={ensure}>
+				<p class="ml-auto text-blue-400" on:click={ensure}>
 					{$t("history.mobile.confirm")}
 				</p>
 			{/if}
@@ -44,6 +44,6 @@
 	<div
 		on:click={close}
 		transition:fade
-		class={cx(["bg-black/60 top-0 left-0 fixed z-10 h-full w-full"])}
+		class={cx(["fixed left-0 top-0 z-10 h-full w-full bg-black/60"])}
 	></div>
 {/if}

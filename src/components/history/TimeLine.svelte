@@ -8,7 +8,7 @@
 	export let className: string = "";
 </script>
 
-<div class={cx(["max-sm:hidden flex w-full items-center gap-[4px]", className])}>
+<div class={cx(["flex w-full items-center gap-[4px] max-sm:hidden", className])}>
 	{#each items as item, i (i)}
 		{#if item.show}
 			{#if item.info}
@@ -20,7 +20,7 @@
 								item.name === currentItem ? "bg-blue-400" : "bg-gray-150"
 							])}
 						></div>
-						<div class="absolute top-[16px] left-[-44px] w-[96px] text-center">
+						<div class="absolute left-[-44px] top-[16px] w-[96px] text-center">
 							{item.name}
 						</div>
 					</div>
@@ -40,7 +40,7 @@
 									: "bg-gray-150"
 						])}
 					></div>
-					<div class="absolute top-[16px] left-[-44px] w-[96px] text-center">
+					<div class="absolute left-[-44px] top-[16px] w-[96px] text-center">
 						{item.name}
 					</div>
 				</div>

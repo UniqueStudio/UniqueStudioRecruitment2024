@@ -6,7 +6,7 @@
 	export let group: GROUP | null;
 </script>
 
-<div class="text-text-1 sm:text-[24px] select-none">
+<div class="select-none text-text-1 sm:text-[24px]">
 	{title} |
 	<span class={clsx(group || "text-text-3")}>{group ? `${group}` : $t("history.notSelected")}</span>
 </div>

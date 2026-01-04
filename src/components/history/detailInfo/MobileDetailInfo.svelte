@@ -94,7 +94,7 @@
 <div class="w-[270px] p-[20px_16px]">
 	<p class="mb-[12px] text-center text-[17px] font-[500]">{step}</p>
 	{#if step === $t("history.step.SignUp")}
-		<p class="text-sm text-center" on:click={handleClick}>
+		<p class="text-center text-sm" on:click={handleClick}>
 			{$userInfo.applications[0]?.recruitment_id === $recruitment.uid
 				? $t("history.mobile.signUpTips", {
 						group: Group[$userInfo.applications[0]?.group],
@@ -113,7 +113,7 @@
 			)}</Button
 		>
 	{:else if step === $t("history.step.WrittenTest")}
-		<p class="text-sm text-text-4 my-[8px] text-center">
+		<p class="my-[8px] text-center text-sm text-text-4">
 			{$t("history.writeTest.tips")}
 		</p>
 		<input
@@ -125,17 +125,17 @@
 			class="hidden"
 		/>
 		{#if isGettingWrittenTestFile}
-			<p class="text-sm my-[8px] text-center">
+			<p class="my-[8px] text-center text-sm">
 				{$t("history.writeTest.loading")}
 			</p>
 		{/if}
 		{#if writtenTestLink}
 			{#if myWrittenTestAnswer}
-				<div class="bg-white p-3 rounded-lg mt-2 border-blue-200 shadow-sm border">
-					<p class="text-sm text-gray-500 mb-1">
+				<div class="border-blue-200 shadow-sm mt-2 rounded-lg border bg-white p-3">
+					<p class="text-gray-500 mb-1 text-sm">
 						{$t("history.writeTest.myAnswer")}
 					</p>
-					<p class="font-medium break-all">{myWrittenTestAnswer}</p>
+					<p class="break-all font-medium">{myWrittenTestAnswer}</p>
 				</div>
 			{/if}
 			<Button highlight className="mx-auto rounded-full my-[8px] w-full text-[15px] leading-[36px]"
@@ -156,7 +156,7 @@
 			</Button>
 		{/if}
 	{:else if step === $t("history.step.GroupTimeSelection")}
-		<p class="text-sm text-text-4 my-[8px] text-center">
+		<p class="my-[8px] text-center text-sm text-text-4">
 			{$t("history.mobile.groupInterviewTips")}
 		</p>
 		<Button
@@ -182,7 +182,7 @@
 				$formatTime($recruitment.stress_test_start)}
 		/>
 	{:else if step === $t("history.step.TeamTimeSelection")}
-		<p class="text-sm text-text-4 my-[8px] text-center">
+		<p class="my-[8px] text-center text-sm text-text-4">
 			{$t("history.mobile.teamInterviewTips")}
 		</p>
 		<Button
@@ -202,11 +202,11 @@
 			group={applicationInfo.group}
 		/>
 	{:else if step === $t("history.step.Pass")}
-		<div class="text-sm flex items-center justify-center gap-[4px]">
+		<div class="flex items-center justify-center gap-[4px] text-sm">
 			<p class="tetx-sm">{$t("history.passTips")}</p>
 			<img class="inline" src={greet} alt="欢迎" />
 		</div>
-		<p class="text-gray-300 text-sm mt-[8px] text-center">
+		<p class="mt-[8px] text-center text-sm text-gray-300">
 			{$t("history.passSubTips")}
 		</p>
 	{/if}

@@ -3,8 +3,8 @@
 </script>
 
 <div class="relative mb-[1rem] w-fit">
-	<p class="max-sm:text-sm text-text-2 font-bold text-[24px]">{title}</p>
+	<p class="text-[24px] font-bold text-text-2 max-sm:text-sm">{title}</p>
 	<div
-		class="bg-blue-300 max-sm:h-[3px] left-0 absolute bottom-[-0.5rem] h-[5px] w-full rounded-full"
+		class="absolute bottom-[-0.5rem] left-0 h-[5px] w-full rounded-full bg-blue-300 max-sm:h-[3px]"
 	></div>
 </div>

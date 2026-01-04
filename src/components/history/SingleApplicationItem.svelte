@@ -34,7 +34,7 @@
 <div
 	in:fly={{ y: 100 * (index + 1), duration: 500, delay: 500 }}
 	out:fly={{ y: 50, duration: 500 }}
-	class="bg-white max-sm:rounded-[6px] max-sm:p-[20px_18px] sm:shadow-card mt-[1rem] rounded-[20px] p-[3rem_4rem]"
+	class="mt-[1rem] rounded-[20px] bg-white p-[3rem_4rem] max-sm:rounded-[6px] max-sm:p-[20px_18px] sm:shadow-card"
 >
 	<div class="flex items-center gap-[0.5rem]">
 		<ApplicationTitle {title} {group} />
@@ -44,7 +44,7 @@
 			on:click={() => (showDetail = !showDetail)}
 			alt="查看详情"
 			class={clsx([
-				"sm:hidden ml-auto cursor-pointer",
+				"ml-auto cursor-pointer sm:hidden",
 				showDetail || "rotate-180",
 				state !== $t("history.processState.PROCESSING") && "hidden"
 			])}
@@ -52,21 +52,21 @@
 	</div>
 
 	{#if state === $t("history.processState.PROCESSING")}
-		<p class="text-text-4 sm:hidden text-sm my-[8px]">
+		<p class="my-[8px] text-sm text-text-4 sm:hidden">
 			{$t("history.currentProcess")}：{step}
 		</p>
 		{#if showDetail}
 			<div transition:slide>
 				<button
 					on:click={() => (showMobileModal = true)}
-					class="bg-blue-100 sm:hidden text-blue-400 text-xs mt-[8px] mb-[16px] rounded-full p-[5px_12px]"
+					class="mb-[16px] mt-[8px] rounded-full bg-blue-100 p-[5px_12px] text-xs text-blue-400 sm:hidden"
 					>{$t("history.viewDetails")}</button
 				>
 				<TimeLine items={timeline} className="mt-[24px] px-[12px] text-sm" currentItem={step} />
 				<DetailInfo {step} {applicationInfo} />
 			</div>
 		{:else if group}
-			<div class="max-sm:hidden flex">
+			<div class="flex max-sm:hidden">
 				<Button
 					highlight
 					onClick={() => (showDetail = true)}
@@ -75,7 +75,7 @@
 				>
 			</div>
 		{:else}
-			<p class="text-text-4 max-sm:text-sm mt-[8px]">
+			<p class="mt-[8px] text-text-4 max-sm:text-sm">
 				{$t("history.notApplyTips")}
 			</p>
 			<div class="flex">
@@ -88,11 +88,11 @@
 			</div>
 		{/if}
 	{:else if state === $t("history.processState.OUT")}
-		<p class="text-text-4 max-sm:text-sm mt-[1rem]">
+		<p class="mt-[1rem] text-text-4 max-sm:text-sm">
 			{$t("history.outTips")}<img class="inline" src={out} alt="out" />
 		</p>
 	{:else if state === $t("history.processState.OVER")}
-		<p class="text-text-4 mt-[1rem]">{$t("history.overTips")}</p>
+		<p class="mt-[1rem] text-text-4">{$t("history.overTips")}</p>
 	{:else if state === $t("history.processState.PASS")}
 		<div class="mt-[8px] flex items-center gap-[4px]">
 			{#if $recruitment.name.endsWith("C")}

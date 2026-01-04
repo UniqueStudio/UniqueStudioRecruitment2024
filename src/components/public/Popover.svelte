@@ -39,14 +39,14 @@
 	on:pointerout={handleMouseMoveOut}
 	bind:this={box}
 	class={cx([
-		"max-sm:flex max-sm:gap-[8px] relative w-fit",
+		"relative w-fit max-sm:flex max-sm:gap-[8px]",
 		questionDirection === "end" && "max-sm:flex-row-reverse",
 		className
 	])}
 >
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	{#if isShowImg}
-		<img class="sm:hidden inline" on:click={() => (showModal = true)} src={question} alt="?" />
+		<img class="inline sm:hidden" on:click={() => (showModal = true)} src={question} alt="?" />
 	{/if}
 	<slot name="children" />
 	{#if showContent}
@@ -56,7 +56,7 @@
 				"absolute z-[90] rounded-[6px]",
 				style === "black" ? "shadow-drop" : "shadow-card",
 				direct === "bottom" &&
-					"top-[calc(100%_+_12px)]  left-[50%] origin-[top_center] translate-x-[-50%] ",
+					"left-[50%]  top-[calc(100%_+_12px)] origin-[top_center] translate-x-[-50%] ",
 				direct === "top" &&
 					"bottom-[calc(100%_+_12px)] left-[50%] origin-[bottom_center] translate-x-[-50%]",
 				direct === "left-top" && "bottom-[calc(100%_+_12px)] left-[0] origin-[bottom_left] "
@@ -64,16 +64,16 @@
 		>
 			<div
 				class={cx([
-					"border-gray-150  text-sm w-fit rounded-[6px] p-[8px_12px] text-center",
-					style === "black" ? "text-white bg-black" : "text-black bg-white"
+					"w-fit  rounded-[6px] border-gray-150 p-[8px_12px] text-center text-sm",
+					style === "black" ? "bg-black text-white" : "bg-white text-black"
 				])}
 			>
 				<slot name="content" />
 			</div>
 			<div
 				class={cx([
-					"w-0 h-0 absolute border-[8px] border-transparent ",
-					direct === "bottom" && "top-[-14px] left-[calc(50%_-_8px)]",
+					"absolute h-0 w-0 border-[8px] border-transparent ",
+					direct === "bottom" && "left-[calc(50%_-_8px)] top-[-14px]",
 					direct === "top" && "bottom-[-14px] left-[calc(50%_-_8px)] rotate-180",
 					direct === "left-top" && "bottom-[-14px] left-[8px] rotate-180",
 					style === "black" ? "border-b-black" : "border-b-white"

@@ -11,9 +11,9 @@
 	export let isDisabled: boolean = false;
 </script>
 
-<div class="max-lg:my-[1.5rem] flex flex-col gap-[0.5rem]">
+<div class="flex flex-col gap-[0.5rem] max-lg:my-[1.5rem]">
 	<div class="flex items-center gap-[1rem]">
-		<p class="  max-sm:text-sm shrink-0">
+		<p class="  shrink-0 max-sm:text-sm">
 			{#if necessary}
 				<span class="text-blue-300">*</span>
 			{/if}{name}
@@ -32,8 +32,12 @@
 					disabled={isDisabled || !editMode}
 					placeholder={editMode ? $t("user.placeholder") : ""}
 					class={cx([
-						"max-sm:text-sm text-text-1 max-sm:h-[42px] h-[48px] w-full rounded-[8px] border-[1px] bg-[#FAFAFA] p-[4px_12px] transition-all outline-none  focus:border-[#165DFF]",
-						errorMessage ? "border-red-500" : (editMode && !isDisabled ? "border-gray-200 bg-transparent" : "border-transparent")
+						"h-[48px] w-full rounded-[8px] border-[1px] bg-[#FAFAFA] p-[4px_12px] text-text-1 outline-none transition-all focus:border-[#165DFF] max-sm:h-[42px]  max-sm:text-sm",
+						errorMessage
+							? "border-red-500"
+							: editMode && !isDisabled
+								? "border-gray-200 bg-transparent"
+								: "border-transparent"
 					])}
 					bind:value={content}
 					slot="children"
@@ -49,14 +53,18 @@
 				disabled={isDisabled || !editMode}
 				placeholder={editMode ? $t("user.placeholder") : ""}
 				class={cx([
-					"max-sm:text-sm text-text-1 max-sm:h-[42px] h-[48px] w-full rounded-[8px] border-[1px] bg-[#FAFAFA] p-[4px_12px] transition-all outline-none  focus:border-[#165DFF]",
-					errorMessage ? "border-red-500" : (editMode && !isDisabled ? "border-gray-200 bg-transparent" : "border-transparent")
+					"h-[48px] w-full rounded-[8px] border-[1px] bg-[#FAFAFA] p-[4px_12px] text-text-1 outline-none transition-all focus:border-[#165DFF] max-sm:h-[42px]  max-sm:text-sm",
+					errorMessage
+						? "border-red-500"
+						: editMode && !isDisabled
+							? "border-gray-200 bg-transparent"
+							: "border-transparent"
 				])}
 				bind:value={content}
 			/>
 		{/if}
 	</div>
 	{#if errorMessage}
-		<p class="text-red-500 text-xs ml-[3rem]">{errorMessage}</p>
+		<p class="text-red-500 ml-[3rem] text-xs">{errorMessage}</p>
 	{/if}
 </div>

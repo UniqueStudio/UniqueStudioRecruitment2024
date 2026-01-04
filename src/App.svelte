@@ -84,10 +84,7 @@
 				userInfo.setInfo(res.data);
 				if (!$latestInfo && res.data.applications[0]) {
 					latestInfo.setApplication(res.data);
-				} else if (
-					!$latestInfo?.qq_account &&
-					res.data.qq_account
-				) {
+				} else if (!$latestInfo?.qq_account && res.data.qq_account) {
 					// ly: if qq_account is added to backend but not in localStorage, valid it
 					latestInfo.updateInfo({
 						groups: $latestInfo?.groups || [],
@@ -188,26 +185,26 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<div class="sm:pt-[6rem] h-full min-h-screen overflow-scroll bg-[rgba(0,0,0,0.04)]">
+<div class="h-full min-h-screen overflow-scroll bg-[rgba(0,0,0,0.04)] sm:pt-[6rem]">
 	<div
 		class={cx([
-			"max-lg:px-[3rem] sm:fixed sm:grid sm:grid-cols-3 max-sm:flex max-md:px-[1rem] max-sm:bg-[#315ED0] top-0 left-0 z-20 h-[5rem] w-full bg-[rgba(49,84,174,0.58)] px-[4rem] py-[0.5rem] transition-all duration-700",
+			"left-0 top-0 z-20 h-[5rem] w-full bg-[rgba(49,84,174,0.58)] px-[4rem] py-[0.5rem] transition-all duration-700 max-lg:px-[3rem] max-md:px-[1rem] max-sm:flex max-sm:bg-[#315ED0] sm:fixed sm:grid sm:grid-cols-3",
 			hideTopBar ? "translate-y-[-5rem]" : "translate-y-0"
 		])}
 	>
 		<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-		<img src={menu} alt="menu" on:click={() => (hide = false)} class="sm:hidden self-center" />
-		<a class="max-sm:hidden flex-shrink-0 self-end" href="https://hustunique.com" target="_blank">
+		<img src={menu} alt="menu" on:click={() => (hide = false)} class="self-center sm:hidden" />
+		<a class="flex-shrink-0 self-end max-sm:hidden" href="https://hustunique.com" target="_blank">
 			<div class="flex items-center gap-[0.5rem]">
 				<img draggable={false} src={logo} alt="UniqueStudio" />
-				<p class="text-white text-lg mb-[0.5rem]">{$t("header.team")}</p>
+				<p class="mb-[0.5rem] text-lg text-white">{$t("header.team")}</p>
 			</div>
 		</a>
-		<div class="sm:hidden flex w-full justify-center">
+		<div class="flex w-full justify-center sm:hidden">
 			<img src={title} alt="联创招新" class="mx-auto h-[22px] flex-shrink-0 self-center" />
 		</div>
 		<div
-			class="max-sm:hidden text-white relative flex flex-shrink-0 gap-[2rem] self-center justify-self-center"
+			class="relative flex flex-shrink-0 gap-[2rem] self-center justify-self-center text-white max-sm:hidden"
 		>
 			<div bind:this={home} class="cursor-pointer" on:click={() => handleRouterClick("/")}>
 				{$t("header.applications")}
@@ -217,25 +214,25 @@
 			</div>
 			<div
 				bind:this={tabLine}
-				class={cx(["bg-white absolute bottom-[-0.5rem] h-[3px] rounded-full transition-all"])}
+				class={cx(["absolute bottom-[-0.5rem] h-[3px] rounded-full bg-white transition-all"])}
 			/>
 		</div>
 		{#if $userInfo}
 			<div
-				class="sm:gap-[24px] sm:mr-[2rem] relative ml-auto flex flex-shrink-0 items-center self-center select-none"
+				class="relative ml-auto flex flex-shrink-0 select-none items-center self-center sm:mr-[2rem] sm:gap-[24px]"
 			>
 				<div>
 					<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 					<img
 						on:click={() => (showLanguageSelector = !showLanguageSelector)}
 						alt="language"
-						class="max-sm:hidden h-[24px] w-[24px] cursor-pointer"
+						class="h-[24px] w-[24px] cursor-pointer max-sm:hidden"
 						src={language}
 					/>
 					{#if showLanguageSelector}
 						<div
 							transition:slide
-							class="bg-white absolute top-[48px] right-[64px] z-[999] w-[149px] rounded-[6px] py-[6px]"
+							class="absolute right-[64px] top-[48px] z-[999] w-[149px] rounded-[6px] bg-white py-[6px]"
 						>
 							{#each i18nKeys as key (key)}
 								<button
@@ -243,7 +240,7 @@
 										showLanguageSelector = false;
 										localeLanguage.updateLanguage(key);
 									}}
-									class="max-md:h-[32px] hover:bg-gray-150 max-md:leading-[32px] h-[46px] w-full text-center leading-[46px]"
+									class="h-[46px] w-full text-center leading-[46px] hover:bg-gray-150 max-md:h-[32px] max-md:leading-[32px]"
 									>{LANGUAGES[key]}</button
 								>
 							{/each}
@@ -253,25 +250,25 @@
 				<div class="relative">
 					<div
 						on:click={() => (showAvatarDetail = !showAvatarDetail)}
-						class=" bg-white max-sm:w-[32px] max-sm:h-[32px] max-sm:leading-[32px] max-sm:text-[12px] text-text-3 h-[40px] w-[40px] cursor-pointer rounded-full text-center leading-[40px]"
+						class=" h-[40px] w-[40px] cursor-pointer rounded-full bg-white text-center leading-[40px] text-text-3 max-sm:h-[32px] max-sm:w-[32px] max-sm:text-[12px] max-sm:leading-[32px]"
 					>
 						{$userInfo.name[0]}
 					</div>
 					{#if showAvatarDetail}
 						<div
 							transition:slide
-							class="bg-white right-0 absolute top-[48px] w-[149px] rounded-[6px] py-[6px]"
+							class="absolute right-0 top-[48px] w-[149px] rounded-[6px] bg-white py-[6px]"
 						>
 							<button
 								on:click={() => (window.location.href = "https://sso2024.hustunique.com/")}
-								class="max-md:h-[32px] hover:bg-gray-150 max-md:leading-[32px] h-[46px] w-full text-center leading-[46px]"
+								class="h-[46px] w-full text-center leading-[46px] hover:bg-gray-150 max-md:h-[32px] max-md:leading-[32px]"
 								>{$t("header.accountManagement")}</button
 							>
 							<button
 								on:click={() =>
 									(window.location.href =
 										"https://sso2024.hustunique.com/login?logout=true&from=join2024.hustunique.com")}
-								class="text-red-warning max-md:h-[32px] hover:bg-gray-150 max-md:leading-[32px] h-[46px] w-full text-center leading-[46px]"
+								class="h-[46px] w-full text-center leading-[46px] text-red-warning hover:bg-gray-150 max-md:h-[32px] max-md:leading-[32px]"
 								>{$t("header.logout")}</button
 							>
 						</div>
@@ -281,24 +278,24 @@
 		{/if}
 	</div>
 	<div
-		class="max-sm:invisible top-0 left-0 fixed -z-10 h-[15rem] w-full overflow-hidden bg-[rgba(53,100,221,1)]"
+		class="fixed left-0 top-0 -z-10 h-[15rem] w-full overflow-hidden bg-[rgba(53,100,221,1)] max-sm:invisible"
 	>
 		<Groups />
 	</div>
-	<div class="sm:hidden h-[80px] w-full"></div>
+	<div class="h-[80px] w-full sm:hidden"></div>
 	<Router {routes} />
 </div>
 
 {#if $globalLoading}
-	<div class="inset-0 bg-white/20 fixed z-[100] flex items-center justify-center">
+	<div class="fixed inset-0 z-[100] flex items-center justify-center bg-white/20">
 		<div
 			transition:fly={{ y: 20, duration: 300 }}
-			class="gap-4 rounded-xl bg-white p-8 shadow-2xl border-gray-100 flex flex-col items-center border"
+			class="shadow-2xl flex flex-col items-center gap-4 rounded-xl border border-gray-100 bg-white p-8"
 		>
 			<div
-				class="h-10 w-10 animate-spin border-blue-400 rounded-full border-4 border-t-transparent"
+				class="h-10 w-10 animate-spin rounded-full border-4 border-blue-400 border-t-transparent"
 			></div>
-			<p class="text-base font-medium text-gray-700">
+			<p class="text-gray-700 text-base font-medium">
 				{$t("header.loading")}
 			</p>
 		</div>
