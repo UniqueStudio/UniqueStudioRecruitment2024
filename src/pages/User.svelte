@@ -78,7 +78,6 @@
 		!!$recruitment && $userInfo?.applications[0]?.recruitment_id === $recruitment.uid;
 	$: canShowSaveTips = hasAppliedCurrentRecruitment && !$userInfo.applications[0]?.rejected;
 
-
 	$: downloadResumeName = $userInfo?.applications[0]?.resume?.split("/").pop() || "个人简历";
 
 	const downloadResume = () => {

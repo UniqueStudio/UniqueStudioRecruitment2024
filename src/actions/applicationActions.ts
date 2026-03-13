@@ -7,7 +7,6 @@ import { editMode } from "../stores/editMode";
 import { checkNecessaryInfo } from "../utils/checkNecessaryInfo";
 import { signUpRecruitment } from "../requests/application/signUpRecruitment";
 import { updateApplication } from "../requests/application/updateApplication";
-import { getInfo } from "../requests/user/getInfo";
 import { Message } from "../utils/Message";
 import { translate } from "../utils/t";
 
@@ -88,9 +87,7 @@ export async function signUp(form: ApplicationFormState): Promise<boolean> {
 		}
 		Message.success(t("user.signUpSuccess"));
 		editMode.out();
-		const res = await getInfo();
-		userInfo.setInfo(res.data);
-		latestDraft.hydrateFromUser(res.data);
+		await userInfo.refresh();
 		return true;
 	} catch {
 		Message.error(t("user.signUpFail"));
@@ -155,9 +152,7 @@ export async function saveApplicationInfo(form: ApplicationFormState): Promise<b
 				if (app.recruitment_id !== $recruitment.uid) continue;
 				await updateApplication(app.uid, formData);
 			}
-			const res = await getInfo();
-			userInfo.setInfo(res.data);
-			latestDraft.hydrateFromUser(res.data);
+			await userInfo.refresh();
 			Message.success(t("user.saveSuccess"));
 		} catch {
 			Message.error(t("user.saveFailed"));

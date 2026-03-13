@@ -1,5 +1,4 @@
 import { get } from "svelte/store";
-import { getInfo } from "../requests/user/getInfo";
 import { userInfo } from "./userInfo";
 import { latestDraft } from "./latestDraft";
 import { recruitment } from "./recruitment";
@@ -25,17 +24,12 @@ export function initializeApp(): void {
 	}
 
 	if (!$userInfo) {
-		getInfo()
-			.then((res) => {
-				userInfo.setInfo(res.data);
-				latestDraft.hydrateFromUser(res.data);
-			})
-			.catch((err: Error) => {
-				if (err.message === "authentication failed could not get uid") {
-					return;
-				}
-				Message.error(translate("header.getInfoFailed"));
-			});
+		userInfo.refresh().catch((err: Error) => {
+			if (err.message === "authentication failed could not get uid") {
+				return;
+			}
+			Message.error(translate("header.getInfoFailed"));
+		});
 	}
 
 	if (!$recruitment) {

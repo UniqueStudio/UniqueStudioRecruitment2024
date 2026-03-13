@@ -13,36 +13,27 @@
 	import InterviewInfo from "./InterviewInfo.svelte";
 	import BottomBar from "../../public/BottomBar.svelte";
 	import TimeSelector from "./TimeSelector.svelte";
-	import { getInterviewTimes } from "../../../requests/application/getInterviewTimes";
 	import NightTestInfo from "./NightTestInfo.svelte";
 	import greet from "../../../assets/greet.svg";
 	import { onMount } from "svelte";
-	import { getWrittenTest } from "../../../requests/recruitment/getWrittenTest";
-	import { Message } from "../../../utils/Message";
-	import { uploadWrittenTest } from "../../../requests/application/uploadWrittenTest";
 	import {
-		getWrittenTestType,
-		getWrittenTestUrl
-	} from "../../../requests/recruitment/getWrittenTest";
-	import { globalLoading } from "../../../stores/globalLoading";
-	import { writable } from "svelte/store";
-	import { getInfo } from "../../../requests/user/getInfo";
-	import { latestDraft } from "../../../stores/latestDraft";
+		WrittenTestType,
+		writtenTestLink,
+		writtenTestType,
+		isGettingWrittenTestFile,
+		file,
+		groupInterviewTimesPromise,
+		teamInterviewTimesPromise,
+		createInterviewTimesPromiseController,
+		fetchWrittenTest,
+		doUpload,
+		createApplicationInfoSelectTimeHandler,
+		getApplicationInfoSelectedTimeIds
+	} from "./detailInfoStore";
 
 	$: myWrittenTestAnswer = $userInfo?.applications[0]?.answer.split("/").at(-1);
-	enum WrittenTestType {
-		None = 0,
-		File = 1,
-		Url = 2
-	}
 	let openGroupInterviewTimeSelector = false;
 	let openTeamInterviewTimeSelector = false;
-	let writtenTestLink = "";
-	let writtenTestType = WrittenTestType.None;
-	let file: File;
-	let fileInput: HTMLInputElement;
-	let isGettingWrittenTestFile = false;
-	let isUploading = false;
 	const handleClick = (e) => {
 		if (e.target.className.includes("go-user")) {
 			push("/user");
@@ -52,138 +43,43 @@
 	export let applicationInfo: Application;
 	export let step: UserStep;
 
-	// 创建两个 writable stores
-	const selectedTimeList = writable(
-		applicationInfo.interview_selections?.map((el) => el.uid) || []
-	);
-	const allocatedTimeValue = writable(
-		[
-			step === $t("history.step.GroupTimeSelection")
-				? applicationInfo.interview_allocations_group?.uid
-				: applicationInfo.interview_allocations_team?.uid
-		].filter(Boolean)
-	);
-
-	// 监听 applicationInfo 变化并更新 selectedTimeList
-	$: {
-		selectedTimeList.set(applicationInfo.interview_selections?.map((el) => el.uid) || []);
-	}
-
-	let groupInterviewTimesPromise;
-	let teamInterviewTimesPromise;
-
-	function reloadGroupInterviewTimes() {
-		groupInterviewTimesPromise = getInterviewTimes(
-			applicationInfo.recruitment_id,
-			applicationInfo.group
-		);
-	}
-
-	function reloadTeamInterviewTimes() {
-		teamInterviewTimesPromise = getInterviewTimes(applicationInfo.recruitment_id);
-	}
-
-	if (step === $t("history.step.GroupTimeSelection")) {
-		groupInterviewTimesPromise = getInterviewTimes(
-			applicationInfo.recruitment_id,
-			applicationInfo.group
-		);
-	}
-
-	if (step === $t("history.step.TeamTimeSelection")) {
-		teamInterviewTimesPromise = getInterviewTimes(applicationInfo.recruitment_id);
-	}
-
+	let fileInput: HTMLInputElement;
 	const uploadAnswer = () => {
-		if (!file) {
+		if (!$file) {
 			fileInput.click();
 		} else {
-			if (isUploading) return;
-			isUploading = true;
-			globalLoading.set(true);
-			const formData = new FormData();
-			formData.append("file", file);
-			uploadWrittenTest(applicationInfo.uid, formData)
-				.then(() => {
-					Message.success($t("history.writeTest.uploadSuccess"));
-					file = undefined;
-					return getInfo();
-				})
-				.then((res) => {
-					userInfo.setInfo(res.data);
-					latestDraft.hydrateFromUser(res.data);
-				})
-				.catch(() => {
-					Message.error($t("history.writeTest.uploadError"));
-				})
-				.finally(() => {
-					isUploading = false;
-					globalLoading.set(false);
-				});
+			doUpload(applicationInfo);
 		}
 	};
 
+	const groupInterviewTimesController = createInterviewTimesPromiseController({
+		applicationInfo,
+		mode: "group",
+		promiseStore: groupInterviewTimesPromise
+	});
+	const teamInterviewTimesController = createInterviewTimesPromiseController({
+		applicationInfo,
+		mode: "team",
+		promiseStore: teamInterviewTimesPromise
+	});
+
+	if (step === $t("history.step.GroupTimeSelection")) {
+		groupInterviewTimesController.init();
+	}
+
+	if (step === $t("history.step.TeamTimeSelection")) {
+		teamInterviewTimesController.init();
+	}
+
 	export let onCancel: () => void;
 	const onSaveAndCancel = async () => {
-		await getInfo().then((res) => {
-			// 注意这里必须要reset userinfo，不然下一次点进来显示不对
-			userInfo.setInfo(res.data);
-			latestDraft.hydrateFromUser(res.data);
-			onCancel();
-		});
+		// 注意这里必须要刷新 userInfo，不然下一次点进来显示不对
+		// await userInfo.refresh();
+		onCancel();
 	};
 	onMount(async () => {
 		if (step === $t("history.step.WrittenTest")) {
-			isGettingWrittenTestFile = true;
-			const typeResp = await getWrittenTestType(
-				applicationInfo.recruitment_id,
-				applicationInfo.group
-			);
-			if (!typeResp.ok) {
-				Message.warning($t("history.writeTest.downloadError"));
-				isGettingWrittenTestFile = false;
-				return;
-			}
-			const typeData = await typeResp.json();
-			if (typeData.data === 2) {
-				// 在线问卷链接
-				getWrittenTestUrl(applicationInfo.recruitment_id, applicationInfo.group)
-					.then((res) => {
-						if (!res.ok) {
-							Message.warning($t("history.writeTest.downloadError"));
-							return;
-						}
-						return res.json();
-					})
-					.then((data) => {
-						writtenTestLink = data.data;
-						writtenTestType = WrittenTestType.Url;
-					})
-					.finally(() => {
-						isGettingWrittenTestFile = false;
-					});
-			} else if ((await typeData.data) === 1) {
-				// 文件下载
-				getWrittenTest(applicationInfo.recruitment_id, applicationInfo.group)
-					.then((res) => {
-						if (!res.ok) {
-							Message.warning($t("history.writeTest.downloadError"));
-							return;
-						}
-						return res.blob();
-					})
-					.then((blob) => {
-						const url = URL.createObjectURL(blob);
-						writtenTestLink = url;
-						writtenTestType = WrittenTestType.File;
-					})
-					.finally(() => {
-						isGettingWrittenTestFile = false;
-					});
-			} else {
-				isGettingWrittenTestFile = false;
-				writtenTestType = WrittenTestType.None;
-			}
+			await fetchWrittenTest(applicationInfo);
 		}
 	});
 </script>
@@ -216,20 +112,21 @@
 			{$t("history.writeTest.tips")}
 		</p>
 		<input
-			on:change={() => {
-				file = fileInput.files[0];
+			on:change={(e) => {
+				const el = e.currentTarget;
+				if (el.files?.[0]) file.set(el.files[0]);
 			}}
 			bind:this={fileInput}
 			type="file"
 			class="hidden"
 		/>
-		{#if isGettingWrittenTestFile}
+		{#if $isGettingWrittenTestFile}
 			<p class="my-[8px] text-center text-sm">
 				{$t("history.writeTest.loading")}
 			</p>
 		{/if}
-		{#if writtenTestLink}
-			{#if writtenTestType === WrittenTestType.File}
+		{#if $writtenTestLink}
+			{#if $writtenTestType === WrittenTestType.File}
 				{#if myWrittenTestAnswer}
 					<div class="border-blue-200 shadow-sm mt-2 rounded-lg border bg-white p-3">
 						<p class="text-gray-500 mb-1 text-sm">
@@ -241,7 +138,7 @@
 				<Button
 					highlight
 					className="mx-auto rounded-full my-[8px] w-full text-[15px] leading-[36px]"
-					><a href={writtenTestLink} download="${$t('history.step.WrittenTest')}"
+					><a href={$writtenTestLink} download="${$t('history.step.WrittenTest')}"
 						>{$t("history.mobile.viewLink")}</a
 					></Button
 				>
@@ -249,18 +146,18 @@
 					highlight
 					className="mx-auto rounded-full my-[8px] w-full text-[15px] leading-[36px]"
 					onClick={uploadAnswer}
-					>{file
+					>{$file
 						? $t("history.mobile.uploadWrittenTest") +
-							(file.name.length > 10
-								? file.name.slice(0, 5) + "..." + file.name.slice(-5)
-								: file.name)
+							($file.name.length > 10
+								? $file.name.slice(0, 5) + "..." + $file.name.slice(-5)
+								: $file.name)
 						: $t("history.mobile.selectWrittenTest")}
 				</Button>
-			{:else if writtenTestType === WrittenTestType.Url}
+			{:else if $writtenTestType === WrittenTestType.Url}
 				<Button
 					highlight
 					className="mx-auto rounded-full my-[8px] w-full text-[15px] leading-[36px]"
-					><a href={writtenTestLink} target="_blank">{$t("history.mobile.viewLink")}</a></Button
+					><a href={$writtenTestLink} target="_blank">{$t("history.mobile.viewLink")}</a></Button
 				>
 			{/if}
 		{/if}
@@ -331,7 +228,7 @@
 	show={openGroupInterviewTimeSelector}
 	on:close={() => (openGroupInterviewTimeSelector = false)}
 >
-	{#await groupInterviewTimesPromise}
+	{#await $groupInterviewTimesPromise}
 		<p>{$t("history.groupInterviewTimeSelector.loading")}</p>
 	{:then res}
 		<div class="space-y-2">
@@ -340,8 +237,17 @@
 				aid={applicationInfo.uid}
 				times={res.data}
 				maxSelected={1}
-				bind:selectedTimes={$allocatedTimeValue}
-				on:reloadTimes={reloadGroupInterviewTimes}
+				selectedTimes={getApplicationInfoSelectedTimeIds({
+					applicationInfo,
+					type: "group",
+					isSingleMode: true
+				})}
+				onSelectTime={createApplicationInfoSelectTimeHandler({
+					applicationInfo,
+					times: res.data,
+					onUpdated: () => (applicationInfo = applicationInfo)
+				})}
+				on:reloadTimes={groupInterviewTimesController.reload}
 				enableSlot={true}
 			>
 				<div slot="timeSlot" let:time class="flex items-center gap-1">
@@ -363,7 +269,16 @@
 				aid={applicationInfo.uid}
 				times={res.data}
 				maxSelected={0}
-				bind:selectedTimes={$selectedTimeList}
+				selectedTimes={getApplicationInfoSelectedTimeIds({
+					applicationInfo,
+					type: "group",
+					isSingleMode: false
+				})}
+				onSelectTime={createApplicationInfoSelectTimeHandler({
+					applicationInfo,
+					times: res.data,
+					onUpdated: () => (applicationInfo = applicationInfo)
+				})}
 			/>
 		</div>
 	{/await}
@@ -374,7 +289,7 @@
 	show={openTeamInterviewTimeSelector}
 	on:close={() => (openTeamInterviewTimeSelector = false)}
 >
-	{#await teamInterviewTimesPromise}
+	{#await $teamInterviewTimesPromise}
 		<p>{$t("history.teamInterviewTimeSelector.loading")}</p>
 	{:then res}
 		<div class="space-y-2">
@@ -383,8 +298,17 @@
 				aid={applicationInfo.uid}
 				times={res.data}
 				maxSelected={1}
-				bind:selectedTimes={$allocatedTimeValue}
-				on:reloadTimes={reloadTeamInterviewTimes}
+				selectedTimes={getApplicationInfoSelectedTimeIds({
+					applicationInfo,
+					type: "team",
+					isSingleMode: true
+				})}
+				onSelectTime={createApplicationInfoSelectTimeHandler({
+					applicationInfo,
+					times: res.data,
+					onUpdated: () => (applicationInfo = applicationInfo)
+				})}
+				on:reloadTimes={teamInterviewTimesController.reload}
 				enableSlot={true}
 			>
 				<div slot="timeSlot" let:time class="flex items-center gap-1">
@@ -405,7 +329,16 @@
 				aid={applicationInfo.uid}
 				times={res.data}
 				maxSelected={0}
-				bind:selectedTimes={$selectedTimeList}
+				selectedTimes={getApplicationInfoSelectedTimeIds({
+					applicationInfo,
+					type: "team",
+					isSingleMode: false
+				})}
+				onSelectTime={createApplicationInfoSelectTimeHandler({
+					applicationInfo,
+					times: res.data,
+					onUpdated: () => (applicationInfo = applicationInfo)
+				})}
 			/>
 		</div>
 	{/await}

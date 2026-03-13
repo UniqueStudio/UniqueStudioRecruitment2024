@@ -9,12 +9,10 @@
 	import CheckBox from "../../../icons/CheckBox.svelte";
 	import { onMount } from "svelte";
 	import { Message } from "../../../utils/Message";
-	import { setFallbackInterviewTimes } from "../../../requests/application/setInterviewTimes";
 	import { t } from "../../../utils/t";
 	import { derived } from "svelte/store";
 	import { localeLanguage } from "../../../stores/localeLanguage";
 	import { isMobile } from "../../../stores/isMobile";
-	import { allocateInterviewTime } from "../../../requests/application/allocateApplications";
 	import { createEventDispatcher } from "svelte";
 
 	// 自定义事件
@@ -37,6 +35,14 @@
 	let curPeriods: InterviewTime["detail"] | undefined = undefined;
 	let curTimes: InterviewTime["detail"][number]["time"] | undefined = undefined;
 	export let selectedTimes: string[] = [];
+	export let onSelectTime: (params: {
+		uuid: string;
+		isSelected: boolean;
+		isSingleMode: boolean;
+		selectedTimes: string[];
+		aid: string;
+		type: "team" | "group";
+	}) => Promise<string[] | undefined> = async ({ selectedTimes }) => selectedTimes;
 	const handleDateClick = (date: string, detail: InterviewTime["detail"]) => {
 		if (curDate === date) {
 			curDate = undefined;
@@ -63,44 +69,18 @@
 			return;
 		}
 
-		if (isSingleMode) {
-			// 单选模式直接分配时间
-			if (isSelected) {
-				return;
-			}
-			if (!window.confirm($t("history.timeSelector.confirmSelection"))) return;
-
-			allocateInterviewTime({
-				aid,
-				type,
-				iid: uuid
-			})
-				.then(() => {
-					selectedTimes = [uuid];
-					Message.success($t("history.timeSelector.chooseSuccess"));
-					dispatch("reloadTimes");
-				})
-				.catch(() => {
-					Message.error($t("history.timeSelector.chooseFailed"));
-				});
-		} else {
-			// 选择候选时间
-			const nowSelectedTimes = isSelected
-				? [...selectedTimes.filter((el) => el !== uuid)]
-				: [...selectedTimes, uuid];
-			setFallbackInterviewTimes({
-				iids: nowSelectedTimes,
-				aid,
-				type
-			})
-				.then(() => {
-					selectedTimes = nowSelectedTimes;
-					Message.success($t("history.timeSelector.chooseSuccess"));
-				})
-				.catch(() => {
-					Message.error($t("history.timeSelector.chooseFailed"));
-				});
-		}
+		onSelectTime({
+			uuid,
+			isSelected,
+			isSingleMode,
+			selectedTimes,
+			aid,
+			type
+		}).then((nextSelectedTimes) => {
+			if (!nextSelectedTimes) return;
+			selectedTimes = nextSelectedTimes;
+			dispatch("reloadTimes");
+		});
 	};
 	const transferTime = derived(localeLanguage, () => (uuid: string) => {
 		const interviewTime = times.find((el) => el.uid === uuid);
