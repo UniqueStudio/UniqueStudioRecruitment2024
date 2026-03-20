@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { fade, fly } from "svelte/transition";
-	import { Group } from "../config/const";
+	import { Group, Step } from "../config/const";
 	import SingleApplicationItem from "../components/history/SingleApplicationItem.svelte";
 	import type { Application } from "../types/application";
 	import type { ProcessState as ProcessStateType } from "../types";
@@ -33,7 +33,18 @@
 			}`
 		) as ProcessStateType;
 
-	const getStep = (application: Application) => $t(`history.step.${application.step}`) as UserStep;
+	const getStep = (application: Application) => {
+		if (Object.keys(Step).includes(application.step)) {
+			return $t(`history.step.${application.step}`) as UserStep;
+		} else {
+			// 如果 step 不在 Step 枚举中，我们认为是在线组面和群面中的一个，转到对应的步骤
+			if (application.step.includes("Team")) {
+				return $t(`history.step.TeamInterview`) as UserStep;
+			} else {
+				return $t(`history.step.GroupInterview`) as UserStep;
+			}
+		}
+	};
 
 	$: if ($userInfo?.applications) {
 		loadExtendedApplications($userInfo.applications);
