@@ -2,12 +2,16 @@
 	import { InterviewPlace } from "../../../config/const";
 	import { t } from "../../../utils/t";
 
-	export let time: string;
-	export let group: string;
+	interface Props {
+		time: string;
+		group: string;
+	}
 
-	$: tipText = $t("history.stressTest.tips", { group });
+	let { time, group }: Props = $props();
 
-	$: parts = tipText.split(/(\{time\}|\{room\})/);
+	let tipText = $derived($t("history.stressTest.tips", { group }));
+
+	let parts = $derived(tipText.split(/(\{time\}|\{room\})/));
 </script>
 
 <p class="max-sm:text-center max-sm:text-sm">

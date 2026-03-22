@@ -3,11 +3,16 @@
 	import { fade } from "svelte/transition";
 	// import warning from "../../assets/warning.svg";
 	// import success from "../../assets/success.svg";
-	// import error from "../../assets/error.svg";
-	export let content: string;
-	export let type: "warning" | "success" | "error" = "warning";
-	export let onClose: () => void;
-	let open = false;
+
+	interface Props {
+		// import error from "../../assets/error.svg";
+		content: string;
+		type?: "warning" | "success" | "error";
+		onClose: () => void;
+	}
+
+	let { content, type = "warning", onClose }: Props = $props();
+	let open = $state(false);
 	onMount(() => {
 		open = true;
 		new Promise<void>((resolve) =>

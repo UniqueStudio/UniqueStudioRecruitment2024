@@ -2,7 +2,11 @@
 	// import { ProcessState } from "../../config/const";
 	import cx from "clsx";
 	import { t } from "../../utils/t";
-	export let state: string;
+	interface Props {
+		state: string;
+	}
+
+	let { state }: Props = $props();
 </script>
 
 <div

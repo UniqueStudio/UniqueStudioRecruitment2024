@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from "svelte/legacy";
+
 	/* eslint-disable svelte/no-at-html-tags */
 
 	import { fade, fly } from "svelte/transition";
@@ -32,11 +34,23 @@
 		saveApplicationInfo as doSaveApplicationInfo
 	} from "../actions/applicationActions";
 
-	$: colleges = Object.keys($departments).sort();
-	let isUploading = false;
-	let showSignUpModal = false;
-	let resume: File;
-	let fileInput: HTMLInputElement;
+	let colleges = $derived(Object.keys($departments).sort());
+	let isUploading = $state(false);
+	let showSignUpModal = $state(false);
+	let resume: File = $state();
+	let fileInput: HTMLInputElement = $state();
+	interface DraftFormState {
+		rank: string;
+		referrer: string;
+		major: string;
+		qq_account: string;
+		institute: string;
+		groups: string[];
+		grade: string;
+		intro: string;
+		is_quick: boolean;
+		is_project_c: boolean;
+	}
 	// groups 应该能申请任意多个组
 	let {
 		rank = "",
@@ -48,37 +62,62 @@
 		grade = "",
 		intro = "",
 		is_quick = false,
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		is_project_c = false
-	} = $latestDraft || {};
+	}: DraftFormState = $state({
+		rank: $latestDraft?.rank ?? "",
+		referrer: $latestDraft?.referrer ?? "",
+		major: $latestDraft?.major ?? "",
+		qq_account: $latestDraft?.qq_account ?? "",
+		institute: $latestDraft?.institute ?? "",
+		groups: $latestDraft?.groups ?? [],
+		grade: $latestDraft?.grade ?? "",
+		intro: $latestDraft?.intro ?? "",
+		is_quick: $latestDraft?.is_quick ?? false,
+		is_project_c: $latestDraft?.is_project_c ?? false
+	});
 	//ly:this asset would be wrong but I just don't want to see TypeError :)
-	$: majors = $departments[institute as College] || [];
-	$: ranks = $t("user.selector.rank") as unknown as string[];
-	$: genders = $t("user.selector.gender") as unknown as string[];
-	$: grades = $t("user.selector.grade") as unknown as string[];
-	let isQuick = is_quick ? $t("user.quick") : $t("user.notQuick");
-	let isProjectC = is_project_c ? $t("user.selector.projectC")[0] : $t("user.selector.projectC")[1];
-	$: if ($userInfo?.qq_account || $latestDraft?.qq_account) {
-		qq_account = $userInfo?.qq_account || $latestDraft?.qq_account || "";
-	}
+	let majors = $derived($departments[institute as College] || []);
+	let ranks = $derived($t("user.selector.rank") as unknown as string[]);
+	let genders = $derived($t("user.selector.gender") as unknown as string[]);
+	let grades = $derived($t("user.selector.grade") as unknown as string[]);
+	let isQuick = $state(($latestDraft?.is_quick ?? false) ? $t("user.quick") : $t("user.notQuick"));
+	let isProjectC =
+		($latestDraft?.is_project_c ?? false)
+			? $t("user.selector.projectC")[0]
+			: $t("user.selector.projectC")[1];
+	run(() => {
+		if ($userInfo?.qq_account || $latestDraft?.qq_account) {
+			qq_account = $userInfo?.qq_account || $latestDraft?.qq_account || "";
+		}
+	});
 
 	localeLanguage.subscribe(() => {
 		Promise.resolve().then(() => {
 			isQuick = is_quick ? $t("user.quick") : $t("user.notQuick");
 		});
 	});
-	$: quicks = $t("user.selector.isQuick") as unknown as string[];
+	let quicks = $derived($t("user.selector.isQuick") as unknown as string[]);
 	// $: projectC = $t("user.selector.projectC") as unknown as string[];
 
-	$: groupGroupSelected = GroupGroup.map(
-		(group) => group.find((g) => groups.some((gg) => Group[gg] === g)) || ""
-	) as [string | null, string | null];
+	let groupGroupSelected = $derived(
+		GroupGroup.map((group) => group.find((g) => groups.some((gg) => Group[gg] === g)) || "") as [
+			string | null,
+			string | null
+		]
+	);
 
-	$: groupGroupTitles = $t("user.selector.groupGroup") as unknown as [string, string];
-	$: hasAppliedCurrentRecruitment =
-		!!$recruitment && $userInfo?.applications[0]?.recruitment_id === $recruitment.uid;
-	$: canShowSaveTips = hasAppliedCurrentRecruitment && !$userInfo.applications[0]?.rejected;
+	let groupGroupTitles = $derived($t("user.selector.groupGroup") as unknown as [string, string]);
+	let hasAppliedCurrentRecruitment = $derived(
+		!!$recruitment && $userInfo?.applications[0]?.recruitment_id === $recruitment.uid
+	);
+	let canShowSaveTips = $derived(
+		hasAppliedCurrentRecruitment && !$userInfo.applications[0]?.rejected
+	);
 
-	$: downloadResumeName = $userInfo?.applications[0]?.resume?.split("/").pop() || "个人简历";
+	let downloadResumeName = $derived(
+		$userInfo?.applications[0]?.resume?.split("/").pop() || "个人简历"
+	);
 
 	const downloadResume = () => {
 		getResume($userInfo.applications[0].uid, downloadResumeName);
@@ -144,8 +183,8 @@
 	};
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class="mx-auto flex h-full w-[60%] flex-col max-xl:w-[80%] max-sm:w-full">
 	<p transition:fade class="text-[26px] text-white max-sm:hidden">
 		{$t("user.selfInfo")}
@@ -173,13 +212,14 @@
 							<Button
 								isLoading={isUploading}
 								onClick={saveApplicationInfo}
-								slot="children"
 								className="sm:p-[7px_30px] max-sm:text-xs max-sm:w-[88px] max-sm:h-[28px] max-sm:leading-[28px] text-sm rounded-full"
 								highlight>{$t("user.save")}</Button
 							>
-							<p slot="content" class="w-[180px]">
-								{canShowSaveTips ? $t("user.saveTips") : $t("user.saveTips1")}
-							</p>
+							{#snippet content()}
+								<p class="w-[180px]">
+									{canShowSaveTips ? $t("user.saveTips") : $t("user.saveTips1")}
+								</p>
+							{/snippet}
 						</Popover>
 					</div>
 				{:else}
@@ -188,19 +228,20 @@
 							<Popover style="white" direct="top" questionDirection="end">
 								<Button
 									onClick={() => (showSignUpModal = true)}
-									slot="children"
 									className="sm:p-[7px_30px] max-sm:text-xs max-sm:w-[88px] max-sm:h-[28px] max-sm:leading-[28px] text-sm rounded-full"
 									highlight>{$t("user.signUp")}</Button
 								>
-								<p class="w-[142px]" slot="content">
-									{$t("user.signUpConfirm", {
-										recruitment: $parseTitle($recruitment.name)
-									})}
-								</p>
+								{#snippet content()}
+									<p class="w-[142px]">
+										{$t("user.signUpConfirm", {
+											recruitment: $parseTitle($recruitment.name)
+										})}
+									</p>
+								{/snippet}
 							</Popover>
 						{/if}
 						<div
-							on:click={() => {
+							onclick={() => {
 								editMode.in();
 							}}
 							class="flex h-[28px] cursor-pointer items-center gap-[0.25rem] rounded-full bg-blue-100 p-[7px_20px] text-sm text-blue-400 max-sm:w-[88px] max-sm:justify-center max-sm:p-[3px_12px]"
@@ -230,7 +271,7 @@
 				<SingleSelectInfo
 					necessary
 					name={$t("user.gender")}
-					bind:content={GENDERS[$userInfo.gender - 1]}
+					content={GENDERS[$userInfo.gender - 1]}
 					selectItems={genders}
 				/>
 				<SingleSelectInfo
@@ -301,7 +342,6 @@
 					>
 						<MultiSelectInfo
 							className="flex-shrink-0 max-sm:w-[calc(100%_-_24px)]"
-							slot="children"
 							editMode={$editMode && !hasAppliedCurrentRecruitment}
 							necessary
 							name={$t("user.group")}
@@ -314,7 +354,9 @@
 							selectItems={GroupGroup}
 							columnTitles={groupGroupTitles}
 						/>
-						<p slot="content" class="w-[300px]">{$t("user.groupTips")}</p>
+						{#snippet content()}
+							<p class="w-[300px]">{$t("user.groupTips")}</p>
+						{/snippet}
 					</Popover>
 				</div>
 				<div class="col-span-1 max-w-full gap-[1rem]">
@@ -326,14 +368,15 @@
 					>
 						<SingleSelectInfo
 							className="flex-shrink-0 max-sm:w-[calc(100%_-_24px)]"
-							slot="children"
 							editMode={$editMode}
 							necessary
 							name={$t("user.isQuick")}
 							bind:content={isQuick}
 							selectItems={quicks}
 						/>
-						<p slot="content" class="w-[300px]">{$t("user.isQuickTips")}</p>
+						{#snippet content()}
+							<p class="w-[300px]">{$t("user.isQuickTips")}</p>
+						{/snippet}
 					</Popover>
 				</div>
 				<div class="col-span-2 flex gap-[1rem]">
@@ -348,16 +391,16 @@
 							"h-[10rem] w-full resize-none rounded-[8px] border-[1px] bg-[#FAFAFA] p-[0.75rem_1rem] outline-none transition-all focus:border-[#165DFF] max-sm:text-xs",
 							$editMode ? "border-gray-200 bg-transparent" : "border-transparent"
 						])}
-					/>
+					></textarea>
 				</div>
 			</div>
-			<div class="mb-[2rem] h-[1px] w-full bg-[#E5E6EB]" />
+			<div class="mb-[2rem] h-[1px] w-full bg-[#E5E6EB]"></div>
 			<UserInfoTitle title={$t("user.attachment")} />
 			<div
 				class="flex-col items-center gap-[1rem] rounded-[1rem] bg-[#FAFAFA] py-[2rem] max-sm:rounded-[4px] max-sm:p-[18px] sm:flex sm:justify-center"
 			>
 				{#if $editMode}
-					<div on:click={() => fileInput.click()} class="flex gap-[1rem] sm:hidden">
+					<div onclick={() => fileInput.click()} class="flex gap-[1rem] sm:hidden">
 						<img src={uploadSvg} alt="upload" />
 						<div>
 							<p class="my-[4px] text-sm font-bold">{$t("user.upload")}</p>
@@ -377,7 +420,7 @@
 						<p class="max-sm:hidden">{resume.name}</p>
 					{:else if hasAppliedCurrentRecruitment && $userInfo.applications[0].resume}
 						<div
-							on:click={downloadResume}
+							onclick={downloadResume}
 							class="flex cursor-pointer items-center justify-center gap-[8px] text-center sm:flex-col"
 						>
 							<img src={word} alt="简历" />
@@ -389,12 +432,12 @@
 					{/if}
 					<button
 						class="cursor-pointer rounded-[0.5rem] border-[1px] border-[#0A84FF] p-[0.5rem_2rem] text-[#0A84FF] transition-all hover:bg-[#0A84FF] hover:text-white max-sm:hidden"
-						on:click={() => fileInput.click()}
+						onclick={() => fileInput.click()}
 					>
 						{resume ? $t("user.reselect") : $t("user.select")}
 					</button>
 					<input
-						on:change={() => {
+						onchange={() => {
 							const file = fileInput.files[0];
 							if (file && file.size > 20 * 1024 * 1024) {
 								fileInput.value = "";
@@ -409,7 +452,7 @@
 					/>
 				{:else if hasAppliedCurrentRecruitment && $userInfo.applications[0]?.resume}
 					<div
-						on:click={downloadResume}
+						onclick={downloadResume}
 						class="flex cursor-pointer items-center justify-center gap-[8px] sm:flex-col"
 					>
 						<img src={word} alt="简历" />

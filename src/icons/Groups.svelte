@@ -2,7 +2,7 @@
 	import { onMount } from "svelte";
 
 	import { draw } from "svelte/transition";
-	let show = false;
+	let show = $state(false);
 	onMount(() => {
 		show = true;
 		setTimeout(() => {

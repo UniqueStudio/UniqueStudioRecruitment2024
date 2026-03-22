@@ -1,3 +1,5 @@
+<!-- @migration-task Error while migrating Svelte code: can't migrate `let showDetail = false;` to `$state` because there's a variable named state.
+     Rename the variable and try again or migrate by hand. -->
 <script lang="ts">
 	import { fly, slide } from "svelte/transition";
 	import { GROUP } from "../../config/const";
@@ -15,7 +17,6 @@
 	import { t } from "../../utils/t";
 	import Modal from "../public/Modal.svelte";
 	import MobileDetailInfo from "./detailInfo/MobileDetailInfo.svelte";
-	// import { push } from "svelte-spa-router";
 	import { recruitment } from "../../stores/recruitment";
 
 	export let title: string;

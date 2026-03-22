@@ -2,8 +2,12 @@
 	import clsx from "clsx";
 	import type { GROUP } from "../../config/const";
 	import { t } from "../../utils/t";
-	export let title: string;
-	export let group: GROUP | null;
+	interface Props {
+		title: string;
+		group: GROUP | null;
+	}
+
+	let { title, group }: Props = $props();
 </script>
 
 <div class="select-none text-text-1 sm:text-[24px]">

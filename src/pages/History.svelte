@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from "svelte/legacy";
+
 	import { fade, fly } from "svelte/transition";
 	import { Group, Step } from "../config/const";
 	import SingleApplicationItem from "../components/history/SingleApplicationItem.svelte";
@@ -15,8 +17,8 @@
 		loadExtendedApplications
 	} from "../stores/extendedApplications";
 
-	$: signUpStep = $t(`history.step.SignUp`) as UserStep;
-	$: processing = $t("history.processState.PROCESSING") as ProcessStateType;
+	let signUpStep = $derived($t(`history.step.SignUp`) as UserStep);
+	let processing = $derived($t("history.processState.PROCESSING") as ProcessStateType);
 
 	const getState = (application: Application, date: string) =>
 		$t(
@@ -46,12 +48,14 @@
 		}
 	};
 
-	$: if ($userInfo?.applications) {
-		loadExtendedApplications($userInfo.applications);
-	}
+	run(() => {
+		if ($userInfo?.applications) {
+			loadExtendedApplications($userInfo.applications);
+		}
+	});
 
-	$: applications = $extendedApplications;
-	$: isLoading = $extendedApplicationsLoading;
+	let applications = $derived($extendedApplications);
+	let isLoading = $derived($extendedApplicationsLoading);
 </script>
 
 <div

@@ -4,16 +4,32 @@
 	import question from "../../assets/question.svg";
 	import Modal from "./Modal.svelte";
 	// import { isMobile } from "../../stores/isMobile";
-	//ly: now i just finished top & bottom props cuz i'm lazy :)
-	export let direct: "left" | "right" | "top" | "bottom" | "left-top" = "bottom";
-	export let style: "white" | "black" = "black";
-	export let questionDirection: "front" | "end" = "front";
-	export let className: string = "";
-	export let isShowImg = true;
-	export let shouldShow: boolean = true;
-	let box: HTMLDivElement;
-	let showContent = false;
-	let showModal = false;
+
+	interface Props {
+		//ly: now i just finished top & bottom props cuz i'm lazy :)
+		direct?: "left" | "right" | "top" | "bottom" | "left-top";
+		style?: "white" | "black";
+		questionDirection?: "front" | "end";
+		className?: string;
+		isShowImg?: boolean;
+		shouldShow?: boolean;
+		children?: import("svelte").Snippet;
+		content?: import("svelte").Snippet;
+	}
+
+	let {
+		direct = "bottom",
+		style = "black",
+		questionDirection = "front",
+		className = "",
+		isShowImg = true,
+		shouldShow = true,
+		children,
+		content
+	}: Props = $props();
+	let box: HTMLDivElement = $state();
+	let showContent = $state(false);
+	let showModal = $state(false);
 	let timerIn: ReturnType<typeof setTimeout>;
 	let timerOut: ReturnType<typeof setTimeout>;
 
@@ -32,11 +48,11 @@
 	};
 </script>
 
-<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
 	role="tooltip"
-	on:pointerover={handleMouseMoveIn}
-	on:pointerout={handleMouseMoveOut}
+	onpointerover={handleMouseMoveIn}
+	onpointerout={handleMouseMoveOut}
 	bind:this={box}
 	class={cx([
 		"relative w-fit max-sm:flex max-sm:gap-[8px]",
@@ -44,11 +60,11 @@
 		className
 	])}
 >
-	<!-- svelte-ignore a11y-click-events-have-key-events -->
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	{#if isShowImg}
-		<img class="inline sm:hidden" on:click={() => (showModal = true)} src={question} alt="?" />
+		<img class="inline sm:hidden" onclick={() => (showModal = true)} src={question} alt="?" />
 	{/if}
-	<slot name="children" />
+	{@render children?.()}
 	{#if showContent}
 		<div
 			transition:scale
@@ -68,7 +84,7 @@
 					style === "black" ? "bg-black text-white" : "bg-white text-black"
 				])}
 			>
-				<slot name="content" />
+				{@render content?.()}
 			</div>
 			<div
 				class={cx([
@@ -88,5 +104,5 @@
 	onCancel={() => (showModal = false)}
 	visible={showModal}
 >
-	<slot name="content" />
+	{@render content?.()}
 </Modal>

@@ -7,20 +7,34 @@
 	import BottomBar from "../public/BottomBar.svelte";
 	import { isMobile } from "../../stores/isMobile";
 
-	export let necessary: boolean = false;
-	export let name: string;
-	export let selectedItems: [string | null, string | null] = ["", ""]; // 改为两元素数组，对应两列选择
-	export let selectItems: [string[], string[]]; // 改为两个数组，分别对应两列的选项
-	export let editMode: boolean = false;
-	export let placeholder: string = "";
-	export let className: string = "";
-	export let separator: string = "、";
-	export let columnTitles: [string, string] = ["1", "0"]; // 两列的标题
+	interface Props {
+		necessary?: boolean;
+		name: string;
+		selectedItems?: [string | null, string | null]; // 改为两元素数组，对应两列选择
+		selectItems: [string[], string[]]; // 改为两个数组，分别对应两列的选项
+		editMode?: boolean;
+		placeholder?: string;
+		className?: string;
+		separator?: string;
+		columnTitles?: [string, string]; // 两列的标题
+		// 当selectedItems改变时的回调
+		onChange?: (items: [string | null, string | null]) => void;
+	}
 
-	// 当selectedItems改变时的回调
-	export let onChange: (items: [string | null, string | null]) => void = () => {};
+	let {
+		necessary = false,
+		name,
+		selectedItems = $bindable(["", ""]),
+		selectItems,
+		editMode = false,
+		placeholder = "",
+		className = "",
+		separator = "、",
+		columnTitles = ["1", "0"],
+		onChange = () => {}
+	}: Props = $props();
 
-	let showItems = false;
+	let showItems = $state(false);
 
 	// 切换选项的选中状态
 	const toggleItem = (item: string, columnIndex: 0 | 1) => {
@@ -39,16 +53,17 @@
 	};
 
 	// 获取展示文本
-	$: displayText =
+	let displayText = $derived(
 		selectedItems.filter(Boolean).length > 0
 			? selectedItems.filter(Boolean).join(separator)
-			: placeholder || "";
+			: placeholder || ""
+	);
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-	on:click={(e) => e.stopPropagation()}
+	onclick={(e) => e.stopPropagation()}
 	class={cx(["flex items-center gap-[1rem] max-lg:my-[1.5rem]", className])}
 >
 	<p class="shrink-0 max-sm:text-sm">
@@ -57,10 +72,10 @@
 		{/if}{name}
 	</p>
 	<div class="relative w-full">
-		<!-- svelte-ignore a11y-click-events-have-key-events -->
-		<!-- svelte-ignore a11y-no-static-element-interactions -->
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div
-			on:click={() => {
+			onclick={() => {
 				if (!editMode) return;
 				showItems = !showItems;
 			}}
@@ -104,9 +119,9 @@
 							{columnTitles[0]}
 						</h4>
 						{#each selectItems[0] as item (item)}
-							<!-- svelte-ignore a11y-click-events-have-key-events -->
+							<!-- svelte-ignore a11y_click_events_have_key_events -->
 							<div
-								on:click={() => toggleItem(item, 0)}
+								onclick={() => toggleItem(item, 0)}
 								class={cx([
 									"flex cursor-pointer items-center gap-[0.5rem] rounded-[0.5rem] p-[0.5rem_0.75rem] transition-all hover:bg-gray-150",
 									selectedItems[0] === item ? "bg-blue-100 text-blue-300" : ""
@@ -123,9 +138,9 @@
 							{columnTitles[1]}
 						</h4>
 						{#each selectItems[1] as item (item)}
-							<!-- svelte-ignore a11y-click-events-have-key-events -->
+							<!-- svelte-ignore a11y_click_events_have_key_events -->
 							<div
-								on:click={() => toggleItem(item, 1)}
+								onclick={() => toggleItem(item, 1)}
 								class={cx([
 									"flex cursor-pointer items-center gap-[0.5rem] rounded-[0.5rem] p-[0.5rem_0.75rem] transition-all hover:bg-gray-150",
 									selectedItems[1] === item ? "bg-blue-100 text-blue-300" : ""
@@ -143,8 +158,8 @@
 
 <!-- 移动端底部弹窗 -->
 <BottomBar
-	on:close={() => (showItems = false)}
-	on:confirm={() => (showItems = false)}
+	onClose={() => (showItems = false)}
+	onConfirm={() => (showItems = false)}
 	show={$isMobile && showItems}
 	className="h-[400px] overflow-y-auto"
 	confirm={true}
@@ -157,10 +172,10 @@
 				{columnTitles[0]}
 			</h4>
 			{#each selectItems[0] as item (item)}
-				<!-- svelte-ignore a11y-click-events-have-key-events -->
-				<!-- svelte-ignore a11y-no-static-element-interactions -->
+				<!-- svelte-ignore a11y_click_events_have_key_events -->
+				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				<div
-					on:click={() => toggleItem(item, 0)}
+					onclick={() => toggleItem(item, 0)}
 					class={cx([
 						selectedItems[0] === item ? "bg-blue-100 text-blue-300" : "",
 						"mx-[1rem] flex cursor-pointer items-center   justify-center gap-[0.5rem] rounded-[0.5rem] border-b-[1px] border-b-gray-150 p-[1rem_0.75rem] text-center transition-all hover:bg-gray-150"
@@ -177,10 +192,10 @@
 				{columnTitles[1]}
 			</h4>
 			{#each selectItems[1] as item (item)}
-				<!-- svelte-ignore a11y-click-events-have-key-events -->
-				<!-- svelte-ignore a11y-no-static-element-interactions -->
+				<!-- svelte-ignore a11y_click_events_have_key_events -->
+				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				<div
-					on:click={() => toggleItem(item, 1)}
+					onclick={() => toggleItem(item, 1)}
 					class={cx([
 						selectedItems[1] === item ? "bg-blue-100 text-blue-300" : "",
 						"mx-[1rem] flex cursor-pointer items-center   justify-center gap-[0.5rem] rounded-[0.5rem] border-b-[1px] border-b-gray-150 p-[1rem_0.75rem] text-center transition-all hover:bg-gray-150"

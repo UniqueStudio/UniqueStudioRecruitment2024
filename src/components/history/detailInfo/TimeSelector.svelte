@@ -13,36 +13,52 @@
 	import { derived } from "svelte/store";
 	import { localeLanguage } from "../../../stores/localeLanguage";
 	import { isMobile } from "../../../stores/isMobile";
-	import { createEventDispatcher } from "svelte";
 
-	// 自定义事件
-	const dispatch = createEventDispatcher<{ reloadTimes: void }>();
-
-	//ly: type 'SingleTime' is the return-type of backend, type 'InterviewTime' is the useful type when rendering UI
-	export let times: SingleTime[] = [];
-	export let type: "team" | "group";
-	export let aid: string;
-	// max number of selections allowed; set to 0 for unlimited
-	export let maxSelected = 0;
-	// slot content for each time item
-	export let slotIcon: string = "";
-	export let slotText: string = "";
-	export let enableSlot: boolean = false;
-	let timeTrees = parseInterviewTime(times);
-	let showSelector = false;
-	let container: HTMLElement;
-	let curDate: string | undefined = undefined;
-	let curPeriods: InterviewTime["detail"] | undefined = undefined;
-	let curTimes: InterviewTime["detail"][number]["time"] | undefined = undefined;
-	export let selectedTimes: string[] = [];
-	export let onSelectTime: (params: {
-		uuid: string;
-		isSelected: boolean;
-		isSingleMode: boolean;
-		selectedTimes: string[];
-		aid: string;
+	let showSelector = $state(false);
+	let container: HTMLElement = $state();
+	let curDate: string | undefined = $state(undefined);
+	let curPeriods: InterviewTime["detail"] | undefined = $state(undefined);
+	let curTimes: InterviewTime["detail"][number]["time"] | undefined = $state(undefined);
+	interface Props {
+		//ly: type 'SingleTime' is the return-type of backend, type 'InterviewTime' is the useful type when rendering UI
+		times?: SingleTime[];
 		type: "team" | "group";
-	}) => Promise<string[] | undefined> = async ({ selectedTimes }) => selectedTimes;
+		aid: string;
+		// max number of selections allowed; set to 0 for unlimited
+		maxSelected?: number;
+		// slot content for each time item
+		slotIcon?: string;
+		slotText?: string;
+		enableSlot?: boolean;
+		selectedTimes?: string[];
+		onSelectTime?: (params: {
+			uuid: string;
+			isSelected: boolean;
+			isSingleMode: boolean;
+			selectedTimes: string[];
+			aid: string;
+			type: "team" | "group";
+		}) => Promise<string[] | undefined>;
+		onReloadTimes?: () => void;
+		timeSlot?: import("svelte").Snippet<
+			[{ time: InterviewTime["detail"][number]["time"][number] }]
+		>;
+	}
+
+	let {
+		times = [],
+		type,
+		aid,
+		maxSelected = 0,
+		slotIcon = "",
+		slotText = "",
+		enableSlot = false,
+		selectedTimes = $bindable([]),
+		onSelectTime = async ({ selectedTimes }) => selectedTimes,
+		onReloadTimes = () => {},
+		timeSlot
+	}: Props = $props();
+	let timeTrees = $derived(parseInterviewTime(times));
 	const handleDateClick = (date: string, detail: InterviewTime["detail"]) => {
 		if (curDate === date) {
 			curDate = undefined;
@@ -57,7 +73,7 @@
 	const handlePeriodClick = (detail: InterviewTime["detail"][number]) => {
 		curTimes = detail.time;
 	};
-	const isSingleMode = maxSelected === 1;
+	const isSingleMode = $derived(maxSelected === 1);
 	const selectTime = (uuid: string) => {
 		const isSelected = selectedTimes.includes(uuid);
 		if (!isSelected && !isSingleMode && maxSelected > 0 && selectedTimes.length >= maxSelected) {
@@ -79,7 +95,7 @@
 		}).then((nextSelectedTimes) => {
 			if (!nextSelectedTimes) return;
 			selectedTimes = nextSelectedTimes;
-			dispatch("reloadTimes");
+			onReloadTimes();
 		});
 	};
 	const transferTime = derived(localeLanguage, () => (uuid: string) => {
@@ -114,15 +130,11 @@
 	});
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
-<div
-	bind:this={container}
-	on:click={(e) => e.stopPropagation()}
-	class="relative w-full select-none"
->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div bind:this={container} onclick={(e) => e.stopPropagation()} class="relative w-full select-none">
 	<div
-		on:click={handleOpen}
+		onclick={handleOpen}
 		class="scrollbar-hidden flex h-[36px] w-full cursor-pointer items-center whitespace-nowrap rounded-[10px] border-[1px] border-blue-400 bg-white pl-[16px] pr-[24px] leading-[36px]"
 	>
 		<div class="scrollbar-hidden flex gap-[8px] overflow-x-auto overflow-y-hidden">
@@ -162,10 +174,10 @@
 						<p class="p-[12px_14px]">{$t("history.timeSelector.noTime")}</p>
 					{/if}
 					{#each timeTrees as { date, detail } (date)}
-						<!-- svelte-ignore a11y-click-events-have-key-events -->
-						<!-- svelte-ignore a11y-no-static-element-interactions -->
+						<!-- svelte-ignore a11y_click_events_have_key_events -->
+						<!-- svelte-ignore a11y_no_static_element_interactions -->
 						<div
-							on:click={() => handleDateClick(date, detail)}
+							onclick={() => handleDateClick(date, detail)}
 							class={cx([
 								"flex h-[46px] cursor-pointer items-center p-[12px_14px] hover:bg-gray-100 max-sm:flex-shrink-0",
 								curDate === date && "bg-gray-100"
@@ -176,16 +188,16 @@
 						</div>
 					{/each}
 				</div>
-				<!-- svelte-ignore a11y-no-static-element-interactions -->
+				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				{#if curDate && curPeriods}
-					<!-- svelte-ignore a11y-click-events-have-key-events -->
+					<!-- svelte-ignore a11y_click_events_have_key_events -->
 					<div
 						transition:slide={{ axis: $isMobile ? "y" : "x" }}
 						class="w-1/3 border-[1px] border-gray-150 bg-white py-[8px] max-sm:flex max-sm:w-full"
 					>
 						{#each curPeriods as period (period)}
 							<div
-								on:click={() => handlePeriodClick(period)}
+								onclick={() => handlePeriodClick(period)}
 								class={cx([
 									"flex h-[46px] cursor-pointer items-center p-[12px_14px] hover:bg-gray-100 max-sm:min-w-[33%] max-sm:flex-shrink-0",
 									curTimes === period.time && "bg-gray-100"
@@ -209,10 +221,10 @@
 						class="w-1/3 rounded-r-md border-[1px] border-gray-150 bg-white py-[8px] max-sm:flex max-sm:w-full max-sm:overflow-x-auto"
 					>
 						{#each curTimes as time (time.uuid)}
-							<!-- svelte-ignore a11y-click-events-have-key-events -->
-							<!-- svelte-ignore a11y-no-static-element-interactions -->
+							<!-- svelte-ignore a11y_click_events_have_key_events -->
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							<div
-								on:click={() => selectTime(time.uuid)}
+								onclick={() => selectTime(time.uuid)}
 								class={cx([
 									"flex cursor-pointer items-center p-[12px_14px] hover:bg-gray-100 max-sm:min-w-[33%] max-sm:flex-shrink-0",
 									enableSlot
@@ -248,7 +260,7 @@
 										{#if slotText}
 											<span class="truncate">{slotText}</span>
 										{/if}
-										<slot name="timeSlot" {time} />
+										{@render timeSlot?.({ time })}
 									</div>
 								{/if}
 							</div>
