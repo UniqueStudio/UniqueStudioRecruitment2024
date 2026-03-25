@@ -157,7 +157,7 @@
 				<TimeSelector
 					type="group"
 					aid={applicationInfo.uid}
-					times={res.data}
+					times={res.data.filter(t => (new Date(t.start).getTime() > Date.now() && t.slot_number > t.select_number) || getApplicationInfoSelectedTimeIds({applicationInfo, type: "group", isSingleMode: true}).includes(t.uid)).sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())}
 					maxSelected={1}
 					selectedTimes={getApplicationInfoSelectedTimeIds({
 						applicationInfo,
@@ -193,7 +193,7 @@
 				<TimeSelector
 					type="group"
 					aid={applicationInfo.uid}
-					times={res.data}
+					times={res.data.filter(t => new Date(t.start).getTime() > Date.now() || getApplicationInfoSelectedTimeIds({applicationInfo, type: "group", isSingleMode: false}).includes(t.uid)).sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())}
 					maxSelected={0}
 					selectedTimes={getApplicationInfoSelectedTimeIds({
 						applicationInfo,
@@ -232,7 +232,7 @@
 				<TimeSelector
 					type="team"
 					aid={applicationInfo.uid}
-					times={res.data}
+					times={res.data.filter(t => (new Date(t.start).getTime() > Date.now() && t.slot_number > t.select_number) || getApplicationInfoSelectedTimeIds({applicationInfo, type: "team", isSingleMode: true}).includes(t.uid)).sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())}
 					maxSelected={1}
 					selectedTimes={getApplicationInfoSelectedTimeIds({
 						applicationInfo,
@@ -261,7 +261,7 @@
 				<TimeSelector
 					type="team"
 					aid={applicationInfo.uid}
-					times={res.data}
+					times={res.data.filter(t => new Date(t.start).getTime() > Date.now() || getApplicationInfoSelectedTimeIds({applicationInfo, type: "team", isSingleMode: false}).includes(t.uid)).sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())}
 					maxSelected={0}
 					selectedTimes={getApplicationInfoSelectedTimeIds({
 						applicationInfo,
