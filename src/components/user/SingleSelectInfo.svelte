@@ -5,18 +5,32 @@
 	import { onMount } from "svelte";
 	import BottomBar from "../public/BottomBar.svelte";
 	import { isMobile } from "../../stores/isMobile";
-	export let necessary: boolean = false;
-	export let name: string;
-	export let content: string;
-	export let selectItems: readonly string[];
-	export let editMode: boolean = false;
-	export let placeholder: string = "";
-	export let className: string = "";
-	let input: HTMLDivElement;
-	//ly: when bind:content isn't useful, use content & onChange
-	export let onChange: (content?: string) => void = () => {};
+	let input: HTMLDivElement = $state();
 
-	let showItems = false;
+	interface Props {
+		necessary?: boolean;
+		name: string;
+		content: string;
+		selectItems: readonly string[];
+		editMode?: boolean;
+		placeholder?: string;
+		className?: string;
+		//ly: when bind:content isn't useful, use content & onChange
+		onChange?: (content?: string) => void;
+	}
+
+	let {
+		necessary = false,
+		name,
+		content = $bindable(),
+		selectItems,
+		editMode = false,
+		placeholder = "",
+		className = "",
+		onChange = () => {}
+	}: Props = $props();
+
+	let showItems = $state(false);
 	onMount(() => {
 		const close = () => {
 			showItems = false;
@@ -28,10 +42,10 @@
 	});
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-	on:click={(e) => e.stopPropagation()}
+	onclick={(e) => e.stopPropagation()}
 	class={cx(["flex items-center gap-[1rem] max-lg:my-[1.5rem]", className])}
 >
 	<p class="shrink-0 max-sm:text-sm">
@@ -40,11 +54,11 @@
 		{/if}{name}
 	</p>
 	<div class="relative w-full">
-		<!-- svelte-ignore a11y-click-events-have-key-events -->
-		<!-- svelte-ignore a11y-no-static-element-interactions -->
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div
 			bind:this={input}
-			on:click={() => {
+			onclick={() => {
 				if (!editMode) return;
 				showItems = !showItems;
 			}}
@@ -77,10 +91,10 @@
 					</p>
 				{/if}
 				{#each selectItems as item (item)}
-					<!-- svelte-ignore a11y-click-events-have-key-events -->
-					<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+					<!-- svelte-ignore a11y_click_events_have_key_events -->
+					<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 					<p
-						on:click={() => {
+						onclick={() => {
 							content = item;
 							onChange(item);
 							showItems = false;
@@ -96,7 +110,7 @@
 </div>
 
 <BottomBar
-	on:close={() => (showItems = false)}
+	onClose={() => (showItems = false)}
 	show={$isMobile && showItems}
 	className="h-[200px] overflow-y-auto "
 >
@@ -106,10 +120,10 @@
 		</p>
 	{/if}
 	{#each selectItems as item (item)}
-		<!-- svelte-ignore a11y-click-events-have-key-events -->
-		<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 		<p
-			on:click={() => {
+			onclick={() => {
 				content = item;
 				onChange(item);
 				showItems = false;

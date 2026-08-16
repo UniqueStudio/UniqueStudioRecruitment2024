@@ -1,16 +1,28 @@
 <script lang="ts">
-	export let className = "";
-	export let highlight: boolean = false;
-	export let onClick: () => void = () => {};
-	export let isLoading = false;
-	export let disabled = false;
 	import cx from "clsx";
+	interface Props {
+		className?: string;
+		highlight?: boolean;
+		onClick?: () => void;
+		isLoading?: boolean;
+		disabled?: boolean;
+		children?: import("svelte").Snippet;
+	}
+
+	let {
+		className = "",
+		highlight = false,
+		onClick = () => {},
+		isLoading = false,
+		disabled = false,
+		children
+	}: Props = $props();
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-	on:click={() => disabled || isLoading || onClick()}
+	onclick={() => disabled || isLoading || onClick()}
 	class={cx([
 		"w-fit cursor-pointer rounded-[8px] text-center transition-all hover:opacity-80",
 		highlight ? " bg-blue-400 text-white" : "bg-[#F3F3F5]",
@@ -19,5 +31,5 @@
 		className
 	])}
 >
-	<slot></slot>
+	{@render children?.()}
 </div>

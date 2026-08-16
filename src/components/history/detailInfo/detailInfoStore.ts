@@ -237,6 +237,24 @@ export function getApplicationInfoSelectedTimeIds(params: {
 	return applicationInfo.interview_selections?.map((selection) => selection.uid) ?? [];
 }
 
+export function getAvailableInterviewTimes(params: {
+	times: SingleTime[];
+	applicationInfo: Application;
+	type: "team" | "group";
+	isSingleMode: boolean;
+}) {
+	const { times, applicationInfo, type, isSingleMode } = params;
+	const selectedIds = getApplicationInfoSelectedTimeIds({ applicationInfo, type, isSingleMode });
+
+	return times
+		.filter((time) => {
+			if (selectedIds.includes(time.uid)) return true;
+			if (new Date(time.start).getTime() <= Date.now()) return false;
+			return !isSingleMode || time.slot_number > time.select_number;
+		})
+		.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
+}
+
 export async function fetchWrittenTest(applicationInfo: Application) {
 	const key = writtenTestCacheKey(applicationInfo);
 	const cached = get(requestState).writtenTest;
@@ -244,6 +262,10 @@ export async function fetchWrittenTest(applicationInfo: Application) {
 		return cached.promise;
 	}
 
+	const previousLink = get(writtenTestLink);
+	if (previousLink.startsWith("blob:")) URL.revokeObjectURL(previousLink);
+	writtenTestLink.set("");
+	writtenTestType.set(WrittenTestType.None);
 	isGettingWrittenTestFile.set(true);
 	const promise = (async () => {
 		const typeResp = await getWrittenTestType(
@@ -283,9 +305,13 @@ export async function fetchWrittenTest(applicationInfo: Application) {
 		}
 
 		writtenTestType.set(WrittenTestType.None);
-	})().finally(() => {
-		isGettingWrittenTestFile.set(false);
-	});
+	})()
+		.catch(() => {
+			Message.warning(translate("history.writeTest.downloadError"));
+		})
+		.finally(() => {
+			isGettingWrittenTestFile.set(false);
+		});
 
 	requestState.update((state) => ({
 		...state,

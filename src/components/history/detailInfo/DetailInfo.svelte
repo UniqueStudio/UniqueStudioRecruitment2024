@@ -1,6 +1,7 @@
 <script lang="ts">
 	/* eslint-disable svelte/no-at-html-tags */
-	import { push } from "svelte-spa-router";
+	import { goto } from "$app/navigation";
+	import { resolve } from "$app/paths";
 	import { Group } from "../../../config/const";
 	import Button from "../../public/Button.svelte";
 	import Popover from "../../public/Popover.svelte";
@@ -28,18 +29,23 @@
 		fetchWrittenTest,
 		doUpload,
 		createApplicationInfoSelectTimeHandler,
-		getApplicationInfoSelectedTimeIds
+		getApplicationInfoSelectedTimeIds,
+		getAvailableInterviewTimes
 	} from "./detailInfoStore";
 
-	export let step: UserStep;
-	export let applicationInfo: Application;
-	$: myWrittenTestAnswer = applicationInfo?.answer?.split("/").at(-1);
+	interface Props {
+		step: UserStep;
+		applicationInfo: Application;
+	}
+
+	let { step, applicationInfo = $bindable() }: Props = $props();
+	let myWrittenTestAnswer = $derived(applicationInfo?.answer?.split("/").at(-1));
 	const handleClick = (e) => {
 		if (e.target.className.includes("go-user")) {
-			push("/user");
+			goto(resolve("/user", {}));
 		}
 	};
-	let fileInput: HTMLInputElement;
+	let fileInput: HTMLInputElement = $state();
 	const uploadAnswer = () => {
 		if (!$file) {
 			fileInput.click();
@@ -48,27 +54,31 @@
 		}
 	};
 
+	const shouldInitInterviewTimes = $derived(
+		step === $t("history.step.GroupTimeSelection") || step === $t("history.step.TeamTimeSelection")
+	);
+	const interviewTimesController = $derived(
+		createInterviewTimesPromiseController({
+			applicationInfo,
+			mode: step === $t("history.step.TeamTimeSelection") ? "team" : "group",
+			promiseStore: interviewTimesPromise
+		})
+	);
+
 	onMount(async () => {
 		if (step === $t("history.step.WrittenTest")) {
 			await fetchWrittenTest(applicationInfo);
 		}
 	});
 
-	const interviewTimesMode = step === $t("history.step.TeamTimeSelection") ? "team" : "group";
-	const interviewTimesController = createInterviewTimesPromiseController({
-		applicationInfo,
-		mode: interviewTimesMode,
-		promiseStore: interviewTimesPromise
+	$effect(() => {
+		if (shouldInitInterviewTimes) {
+			interviewTimesController.init();
+		}
 	});
-	if (
-		step === $t("history.step.GroupTimeSelection") ||
-		step === $t("history.step.TeamTimeSelection")
-	) {
-		interviewTimesController.init();
-	}
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
 <div class="mt-[3rem] w-full rounded-lg bg-blue-100 p-[20px_28px] max-sm:hidden">
 	{#if step !== $t("history.step.Pass")}
 		<p class="mb-[1rem] text-lg font-bold">
@@ -76,8 +86,8 @@
 		</p>
 	{/if}
 	{#if step === $t("history.step.SignUp")}
-		<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-		<p on:click={handleClick}>
+		<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+		<p onclick={handleClick}>
 			{@html $userInfo.applications[0]?.recruitment_id === $recruitment.uid
 				? $t("history.signUpTips.SignInTips", {
 						changeInfo: `<span
@@ -96,7 +106,7 @@
 	{:else if step === $t("history.step.WrittenTest")}
 		<p>{$t("history.writeTest.tips")}</p>
 		<input
-			on:change={(e) => {
+			onchange={(e) => {
 				const el = e.currentTarget;
 				if (el.files?.[0]) file.set(el.files[0]);
 			}}
@@ -149,65 +159,83 @@
 			{/if}
 		{/if}
 	{:else if step === $t("history.step.GroupTimeSelection")}
-		{#await $interviewTimesPromise}
-			<p>{$t("history.groupInterviewTimeSelector.loading")}</p>
-		{:then res}
-			<div class="space-y-2">
-				<!-- todo/: res.data.filter过期时间and已满时间 -->
-				<TimeSelector
-					type="group"
-					aid={applicationInfo.uid}
-					times={res.data.filter(t => (new Date(t.start).getTime() > Date.now() && t.slot_number > t.select_number) || getApplicationInfoSelectedTimeIds({applicationInfo, type: "group", isSingleMode: true}).includes(t.uid)).sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())}
-					maxSelected={1}
-					selectedTimes={getApplicationInfoSelectedTimeIds({
-						applicationInfo,
-						type: "group",
-						isSingleMode: true
-					})}
-					onSelectTime={createApplicationInfoSelectTimeHandler({
-						applicationInfo,
-						times: res.data,
-						onUpdated: () => (applicationInfo = applicationInfo)
-					})}
-					on:reloadTimes={interviewTimesController.reload}
-					enableSlot={true}
-				>
-					<div slot="timeSlot" let:time class="flex items-center gap-1">
-						<span class="bg-green-400 h-2 w-2 rounded-full"></span>
-						<span class="text-xs">剩余 {time.slot_number - time.select_number} 个位置</span>
+		{#if $interviewTimesPromise}
+			{#await $interviewTimesPromise}
+				<p>{$t("history.groupInterviewTimeSelector.loading")}</p>
+			{:then res}
+				<div class="space-y-2">
+					<!-- todo/: res.data.filter过期时间and已满时间 -->
+					<TimeSelector
+						type="group"
+						aid={applicationInfo.uid}
+						times={getAvailableInterviewTimes({
+							times: res.data,
+							applicationInfo,
+							type: "group",
+							isSingleMode: true
+						})}
+						maxSelected={1}
+						selectedTimes={getApplicationInfoSelectedTimeIds({
+							applicationInfo,
+							type: "group",
+							isSingleMode: true
+						})}
+						onSelectTime={createApplicationInfoSelectTimeHandler({
+							applicationInfo,
+							times: res.data,
+							onUpdated: () => (applicationInfo = applicationInfo)
+						})}
+						onReloadTimes={interviewTimesController.reload}
+						enableSlot={true}
+					>
+						{#snippet timeSlot({ time })}
+							<div class="flex items-center gap-1">
+								<span class="bg-green-400 h-2 w-2 rounded-full"></span>
+								<span class="text-xs">剩余 {time.slot_number - time.select_number} 个位置</span>
+							</div>
+						{/snippet}
+					</TimeSelector>
+					<div class="text-gray-500 flex items-center gap-1 text-sm">
+						<Popover>
+							<span
+								>选择候选时间<span
+									class="ml-1 inline h-5 w-5 cursor-pointer items-center justify-center text-blue-400"
+									>?</span
+								></span
+							>
+							{#snippet content()}
+								<span
+									>请勾选所有您方便参加面试的时段，作为您的备选时段。若原定排期需调整，面试官将优先从您的候选名单中进行匹配并及时通知您。</span
+								>
+							{/snippet}
+						</Popover>
 					</div>
-				</TimeSelector>
-				<div class="text-gray-500 flex items-center gap-1 text-sm">
-					<Popover>
-						<span slot="children"
-							>选择候选时间<span
-								class="ml-1 inline h-5 w-5 cursor-pointer items-center justify-center text-blue-400"
-								>?</span
-							></span
-						>
-						<span slot="content"
-							>请勾选所有您方便参加面试的时段，作为您的备选时段。若原定排期需调整，面试官将优先从您的候选名单中进行匹配并及时通知您。</span
-						>
-					</Popover>
+					<TimeSelector
+						type="group"
+						aid={applicationInfo.uid}
+						times={getAvailableInterviewTimes({
+							times: res.data,
+							applicationInfo,
+							type: "group",
+							isSingleMode: false
+						})}
+						maxSelected={0}
+						selectedTimes={getApplicationInfoSelectedTimeIds({
+							applicationInfo,
+							type: "group",
+							isSingleMode: false
+						})}
+						onSelectTime={createApplicationInfoSelectTimeHandler({
+							applicationInfo,
+							times: res.data,
+							onUpdated: () => (applicationInfo = applicationInfo)
+						})}
+					/>
 				</div>
-				<TimeSelector
-					type="group"
-					aid={applicationInfo.uid}
-					times={res.data.filter(t => new Date(t.start).getTime() > Date.now() || getApplicationInfoSelectedTimeIds({applicationInfo, type: "group", isSingleMode: false}).includes(t.uid)).sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())}
-					maxSelected={0}
-					selectedTimes={getApplicationInfoSelectedTimeIds({
-						applicationInfo,
-						type: "group",
-						isSingleMode: false
-					})}
-					onSelectTime={createApplicationInfoSelectTimeHandler({
-						applicationInfo,
-						times: res.data,
-						onUpdated: () => (applicationInfo = applicationInfo)
-					})}
-				/>
-			</div>
-		{/await}
+			{/await}
+		{:else}
+			<p>{$t("history.groupInterviewTimeSelector.loading")}</p>
+		{/if}
 	{:else if step === $t("history.step.GroupInterview")}
 		<InterviewInfo
 			group={applicationInfo.group}
@@ -225,57 +253,75 @@
 				$formatTime($recruitment.stress_test_start)}
 		/>
 	{:else if step === $t("history.step.TeamTimeSelection")}
-		{#await $interviewTimesPromise}
-			<p>{$t("history.teamInterviewTimeSelector.loading")}</p>
-		{:then res}
-			<div class="space-y-2">
-				<TimeSelector
-					type="team"
-					aid={applicationInfo.uid}
-					times={res.data.filter(t => (new Date(t.start).getTime() > Date.now() && t.slot_number > t.select_number) || getApplicationInfoSelectedTimeIds({applicationInfo, type: "team", isSingleMode: true}).includes(t.uid)).sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())}
-					maxSelected={1}
-					selectedTimes={getApplicationInfoSelectedTimeIds({
-						applicationInfo,
-						type: "team",
-						isSingleMode: true
-					})}
-					onSelectTime={createApplicationInfoSelectTimeHandler({
-						applicationInfo,
-						times: res.data,
-						onUpdated: () => (applicationInfo = applicationInfo)
-					})}
-					on:reloadTimes={interviewTimesController.reload}
-					enableSlot={true}
-				>
-					<div slot="timeSlot" let:time class="flex items-center gap-1">
-						<span class="bg-green-400 h-2 w-2 rounded-full"></span>
-						<span class="text-xs">剩余 {time.slot_number - time.select_number} 个位置</span>
+		{#if $interviewTimesPromise}
+			{#await $interviewTimesPromise}
+				<p>{$t("history.teamInterviewTimeSelector.loading")}</p>
+			{:then res}
+				<div class="space-y-2">
+					<TimeSelector
+						type="team"
+						aid={applicationInfo.uid}
+						times={getAvailableInterviewTimes({
+							times: res.data,
+							applicationInfo,
+							type: "team",
+							isSingleMode: true
+						})}
+						maxSelected={1}
+						selectedTimes={getApplicationInfoSelectedTimeIds({
+							applicationInfo,
+							type: "team",
+							isSingleMode: true
+						})}
+						onSelectTime={createApplicationInfoSelectTimeHandler({
+							applicationInfo,
+							times: res.data,
+							onUpdated: () => (applicationInfo = applicationInfo)
+						})}
+						onReloadTimes={interviewTimesController.reload}
+						enableSlot={true}
+					>
+						{#snippet timeSlot({ time })}
+							<div class="flex items-center gap-1">
+								<span class="bg-green-400 h-2 w-2 rounded-full"></span>
+								<span class="text-xs">剩余 {time.slot_number - time.select_number} 个位置</span>
+							</div>
+						{/snippet}
+					</TimeSelector>
+					<div class="text-gray-500 flex items-center gap-1 text-sm">
+						<Popover>
+							<span>选择候选时间</span>
+							{#snippet content()}
+								<span> 请选择所有可以参与面试的时间，以供面试官调整 </span>
+							{/snippet}
+						</Popover>
 					</div>
-				</TimeSelector>
-				<div class="text-gray-500 flex items-center gap-1 text-sm">
-					<Popover>
-						<span slot="children">选择候选时间</span>
-						<span slot="content"> 请选择所有可以参与面试的时间，以供面试官调整 </span>
-					</Popover>
+					<TimeSelector
+						type="team"
+						aid={applicationInfo.uid}
+						times={getAvailableInterviewTimes({
+							times: res.data,
+							applicationInfo,
+							type: "team",
+							isSingleMode: false
+						})}
+						maxSelected={0}
+						selectedTimes={getApplicationInfoSelectedTimeIds({
+							applicationInfo,
+							type: "team",
+							isSingleMode: false
+						})}
+						onSelectTime={createApplicationInfoSelectTimeHandler({
+							applicationInfo,
+							times: res.data,
+							onUpdated: () => (applicationInfo = applicationInfo)
+						})}
+					/>
 				</div>
-				<TimeSelector
-					type="team"
-					aid={applicationInfo.uid}
-					times={res.data.filter(t => new Date(t.start).getTime() > Date.now() || getApplicationInfoSelectedTimeIds({applicationInfo, type: "team", isSingleMode: false}).includes(t.uid)).sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())}
-					maxSelected={0}
-					selectedTimes={getApplicationInfoSelectedTimeIds({
-						applicationInfo,
-						type: "team",
-						isSingleMode: false
-					})}
-					onSelectTime={createApplicationInfoSelectTimeHandler({
-						applicationInfo,
-						times: res.data,
-						onUpdated: () => (applicationInfo = applicationInfo)
-					})}
-				/>
-			</div>
-		{/await}
+			{/await}
+		{:else}
+			<p>{$t("history.teamInterviewTimeSelector.loading")}</p>
+		{/if}
 	{:else if step === $t("history.step.TeamInterview")}
 		<InterviewInfo
 			time={applicationInfo.interview_allocations_team.uid

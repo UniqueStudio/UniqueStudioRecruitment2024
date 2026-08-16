@@ -3,11 +3,28 @@ import { userInfo } from "./userInfo";
 import { latestDraft } from "./latestDraft";
 import { recruitment } from "./recruitment";
 import { getLatestRecruitment } from "../requests/recruitment/getLatest";
-import { departments } from "./departments";
-import { getDepartments } from "../requests/config/getDepartments";
-import { parseDepartments } from "../utils/parseDepartments";
+import { departments, type Departments } from "./departments";
 import { Message } from "../utils/Message";
 import { translate } from "../utils/t";
+
+const departmentUrl = `${import.meta.env.BASE_URL}DEPARTMENTS.json`;
+
+async function loadDefaultDepartments(): Promise<Departments> {
+	let lastError: Error | undefined;
+	for (let attempt = 0; attempt < 3; attempt += 1) {
+		try {
+			const response = await fetch(departmentUrl);
+			if (!response.ok) throw new Error(`加载默认专业列表失败: ${response.status}`);
+			const data = (await response.json()) as Departments;
+			if (!Object.values(data).every(Array.isArray)) throw new Error("默认专业列表格式错误");
+			return data;
+		} catch (error) {
+			lastError = error instanceof Error ? error : new Error("加载默认专业列表失败");
+			if (attempt < 2) await new Promise((resolve) => setTimeout(resolve, 250 * 2 ** attempt));
+		}
+	}
+	throw lastError;
+}
 
 /**
  * 应用初始化：一次性拉取用户信息、最新招募和部门列表
@@ -48,27 +65,12 @@ export function initializeApp(): void {
 			});
 	}
 
-	if (!$departments.length) {
-		getDepartments()
-			.then((resp) => parseDepartments(resp.data.nodes))
-			.then((resp) => {
-				const keys = Object.keys(resp);
-				if (keys.length <= 10) {
-					throw Error("专业个数过少");
-				}
-				const firstKey = keys[0];
-				if (typeof firstKey !== "string") {
-					throw Error("firstKey 应为 string");
-				}
-				if (!Array.isArray(resp[firstKey])) {
-					throw Error("元素不为数组");
-				}
-				return resp;
-			})
-			.catch(async (e: Error) => {
-				console.error("解析 飞书 专业列表报错：", e.message, "进入fallback");
-				return (await import("../config/DEPARTMENTS")).default;
-			})
-			.then(departments.setDepartments);
+	if (!Object.keys($departments).length) {
+		loadDefaultDepartments()
+			.then(departments.setDepartments)
+			.catch((error: Error) => {
+				console.error(error.message);
+				Message.error(translate("header.getInfoFailed"));
+			});
 	}
 }

@@ -3,9 +3,14 @@
 	import type { TimeLineNode } from "../../types";
 	import Popover from "../public/Popover.svelte";
 
-	export let items: readonly TimeLineNode[];
-	export let currentItem: string;
-	export let className: string = "";
+	interface Props {
+		items: readonly TimeLineNode[];
+		currentItem: string;
+		className?: string;
+		children?: import("svelte").Snippet;
+	}
+
+	let { items, currentItem, className = "", children }: Props = $props();
 </script>
 
 <div class={cx(["flex w-full items-center gap-[4px] max-sm:hidden", className])}>
@@ -13,7 +18,7 @@
 		{#if item.show}
 			{#if item.info}
 				<Popover direct="top" style="white">
-					<div slot="children" class="relative cursor-pointer">
+					<div class="relative cursor-pointer">
 						<div
 							class={cx([
 								" h-[8px] w-[8px] rounded-full",
@@ -24,9 +29,11 @@
 							{item.name}
 						</div>
 					</div>
-					<p slot="content" class="w-fit min-w-[20ch] text-center">
-						{item.info}
-					</p>
+					{#snippet content()}
+						<p class="w-fit min-w-[20ch] text-center">
+							{item.info}
+						</p>
+					{/snippet}
 				</Popover>
 			{:else}
 				<div class="relative">
@@ -88,7 +95,7 @@
 						])}
 					></div>
 					{#if item.name === currentItem || (i > 0 && items[i - 1].name === currentItem && !items[i - 1].show)}
-						<slot />
+						{@render children?.()}
 					{/if}
 				</div>
 			{/if}

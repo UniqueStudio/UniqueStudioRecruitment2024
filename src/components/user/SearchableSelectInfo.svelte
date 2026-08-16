@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from "svelte/legacy";
+
 	import { slide } from "svelte/transition";
 	import arrow from "/src/assets/arrow.svg";
 	import search from "/src/assets/search.svg";
@@ -7,28 +9,45 @@
 	import BottomBar from "../public/BottomBar.svelte";
 	import { isMobile } from "../../stores/isMobile";
 
-	export let necessary: boolean = false;
-	export let name: string;
-	export let content: string;
-	export let selectItems: readonly string[];
-	export let editMode: boolean = false;
-	export let placeholder: string = "";
-	export let className: string = "";
-	//ly: when bind:content isn't useful, use content & onChange
-	export let onChange: (content?: string) => void = () => {};
-
-	let inputWrapper: HTMLDivElement;
-	let showItems = false;
-	let searchContent = content ?? "";
-
-	$: normalizedSearch = searchContent.trim().toLowerCase();
-	$: filteredItems = normalizedSearch
-		? selectItems.filter((item) => item.toLowerCase().includes(normalizedSearch))
-		: [...selectItems];
-
-	$: if (!showItems) {
-		searchContent = content ?? "";
+	interface Props {
+		necessary?: boolean;
+		name: string;
+		content: string;
+		selectItems: readonly string[];
+		editMode?: boolean;
+		placeholder?: string;
+		className?: string;
+		//ly: when bind:content isn't useful, use content & onChange
+		onChange?: (content?: string) => void;
 	}
+
+	let {
+		necessary = false,
+		name,
+		content = $bindable(),
+		selectItems,
+		editMode = false,
+		placeholder = "",
+		className = "",
+		onChange = () => {}
+	}: Props = $props();
+
+	let inputWrapper: HTMLDivElement = $state();
+	let showItems = $state(false);
+	let searchContent = $state(content ?? "");
+
+	let normalizedSearch = $derived(searchContent.trim().toLowerCase());
+	let filteredItems = $derived(
+		normalizedSearch
+			? selectItems.filter((item) => item.toLowerCase().includes(normalizedSearch))
+			: [...selectItems]
+	);
+
+	run(() => {
+		if (!showItems) {
+			searchContent = content ?? "";
+		}
+	});
 
 	const openItems = () => {
 		if (!editMode) return;
@@ -68,10 +87,10 @@
 	};
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-	on:click={(e) => e.stopPropagation()}
+	onclick={(e) => e.stopPropagation()}
 	class={cx(["flex items-center gap-[1rem] max-lg:my-[1.5rem]", className])}
 >
 	<p class="shrink-0 max-sm:text-sm">
@@ -80,11 +99,11 @@
 		{/if}{name}
 	</p>
 	<div class="relative w-full">
-		<!-- svelte-ignore a11y-click-events-have-key-events -->
-		<!-- svelte-ignore a11y-no-static-element-interactions -->
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div
 			bind:this={inputWrapper}
-			on:click={openItems}
+			onclick={openItems}
 			class={cx([
 				"relative flex h-[48px] w-full items-center rounded-[8px] border-[1px] bg-gray-50 p-[4px_12px] text-text-1 outline-none transition-all focus:border-[#165DFF] max-sm:h-[42px] max-sm:text-sm",
 				editMode ? "cursor-text border-[1px] border-gray-200 bg-transparent" : "border-transparent"
@@ -99,8 +118,8 @@
 				disabled={!editMode}
 				bind:value={searchContent}
 				{placeholder}
-				on:focus={openItems}
-				on:input={() => editMode && (showItems = true)}
+				onfocus={openItems}
+				oninput={() => editMode && (showItems = true)}
 				class={cx("w-full bg-transparent outline-none", !editMode && "pointer-events-none")}
 			/>
 			<img
@@ -122,10 +141,10 @@
 					<p class="text-gray-400 p-[0.5rem_0.75rem] text-sm">无匹配选项</p>
 				{:else}
 					{#each filteredItems as item (item)}
-						<!-- svelte-ignore a11y-click-events-have-key-events -->
-						<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+						<!-- svelte-ignore a11y_click_events_have_key_events -->
+						<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 						<p
-							on:click={() => handleSelect(item)}
+							onclick={() => handleSelect(item)}
 							class="cursor-pointer rounded-[0.5rem] p-[0.5rem_0.75rem] transition-all hover:bg-gray-150"
 						>
 							{item}
@@ -138,7 +157,7 @@
 </div>
 
 <BottomBar
-	on:close={() => closeItems(true)}
+	onClose={() => closeItems(true)}
 	show={$isMobile && showItems}
 	className="h-[200px] overflow-y-auto "
 >
@@ -146,10 +165,10 @@
 		<p class="text-gray-400 p-[1rem_0.75rem] text-center">无匹配选项</p>
 	{:else}
 		{#each filteredItems as item (item)}
-			<!-- svelte-ignore a11y-click-events-have-key-events -->
-			<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+			<!-- svelte-ignore a11y_click_events_have_key_events -->
+			<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 			<p
-				on:click={() => handleSelect(item)}
+				onclick={() => handleSelect(item)}
 				class="mx-[3rem] cursor-pointer rounded-[0.5rem] border-b-[1px] border-b-gray-150 p-[1rem_0.75rem] text-center transition-all hover:bg-gray-150"
 			>
 				{item}

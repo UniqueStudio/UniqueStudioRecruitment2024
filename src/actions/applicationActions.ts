@@ -90,6 +90,9 @@ export async function signUp(form: ApplicationFormState): Promise<boolean> {
 		await userInfo.refresh();
 		return true;
 	} catch {
+		// A multi-group submission can partially succeed. Refresh before reporting failure
+		// so the page reflects the server's authoritative state.
+		await userInfo.refresh().catch(() => undefined);
 		Message.error(t("user.signUpFail"));
 		return false;
 	}

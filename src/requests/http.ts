@@ -37,10 +37,16 @@ export class Http {
 		data?: Record<string, any> | FormData,
 		options?: RequestInit
 	) => {
-		const result = {
+		const headers = new Headers(this.fetchOptions?.headers);
+		new Headers(options?.headers).forEach((value, key) => headers.set(key, value));
+		if (data instanceof FormData) headers.delete("content-type");
+
+		const result: RequestInit = {
+			...this.fetchOptions,
+			...options,
 			method,
-			credentials: "include" as const,
-			...(this.fetchOptions ? Object.assign(this.fetchOptions, options) : options)
+			credentials: options?.credentials ?? this.fetchOptions?.credentials ?? "include",
+			headers
 		};
 		if (data) {
 			result.body = data instanceof FormData ? data : JSON.stringify(data);
@@ -100,33 +106,13 @@ export class Http {
 
 	async postFormData<T>(path: string, data: FormData) {
 		return await this.parseFetch<T>(
-			await fetch(
-				this.concatUrl(path),
-				this.mergeOptions("POST", data, {
-					headers: {
-						credentials: "include"
-					}
-				})
-			)
+			await fetch(this.concatUrl(path), this.mergeOptions("POST", data))
 		);
 	}
 
 	async put<T>(path: string, data?: Record<string, any> | FormData, options?: RequestInit) {
 		return await this.parseFetch<T>(
-			await fetch(
-				this.concatUrl(path),
-				this.mergeOptions(
-					"PUT",
-					data,
-					data instanceof FormData
-						? {
-								headers: {
-									credentials: "include"
-								}
-							}
-						: options
-				)
-			)
+			await fetch(this.concatUrl(path), this.mergeOptions("PUT", data, options))
 		);
 	}
 

@@ -6,9 +6,13 @@
 	import type { InterviewType } from "../../../types";
 	import { t } from "../../../utils/t";
 
-	export let time = "";
-	export let group = "";
-	export let type: InterviewType;
+	interface Props {
+		time?: string;
+		group?: string;
+		type: InterviewType;
+	}
+
+	let { time = "", group = "", type }: Props = $props();
 </script>
 
 {#if time}

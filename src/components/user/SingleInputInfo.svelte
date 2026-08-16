@@ -1,14 +1,29 @@
 <script lang="ts">
+	import { createBubbler } from "svelte/legacy";
+
+	const bubble = createBubbler();
 	import cx from "clsx";
 	import { t } from "../../utils/t";
 	import Popover from "../public/Popover.svelte";
-	export let necessary: boolean = false;
-	export let name: string;
-	export let content: string;
-	export let editMode: boolean = false;
-	export let tips: string = "";
-	export let errorMessage: string = "";
-	export let isDisabled: boolean = false;
+	interface Props {
+		necessary?: boolean;
+		name: string;
+		content: string;
+		editMode?: boolean;
+		tips?: string;
+		errorMessage?: string;
+		isDisabled?: boolean;
+	}
+
+	let {
+		necessary = false,
+		name,
+		content: inputValue = $bindable(),
+		editMode = false,
+		tips = "",
+		errorMessage = "",
+		isDisabled = false
+	}: Props = $props();
 </script>
 
 <div class="flex flex-col gap-[0.5rem] max-lg:my-[1.5rem]">
@@ -27,8 +42,8 @@
 				shouldShow={editMode}
 			>
 				<input
-					on:blur
-					on:input
+					onblur={bubble("blur")}
+					oninput={bubble("input")}
 					disabled={isDisabled || !editMode}
 					placeholder={editMode ? $t("user.placeholder") : ""}
 					class={cx([
@@ -39,17 +54,18 @@
 								? "border-gray-200 bg-transparent"
 								: "border-transparent"
 					])}
-					bind:value={content}
-					slot="children"
+					bind:value={inputValue}
 				/>
-				<p slot="content" class="w-[180px]">
-					{tips}
-				</p>
+				{#snippet content()}
+					<p class="w-[180px]">
+						{tips}
+					</p>
+				{/snippet}
 			</Popover>
 		{:else}
 			<input
-				on:blur
-				on:input
+				onblur={bubble("blur")}
+				oninput={bubble("input")}
 				disabled={isDisabled || !editMode}
 				placeholder={editMode ? $t("user.placeholder") : ""}
 				class={cx([
@@ -60,7 +76,7 @@
 							? "border-gray-200 bg-transparent"
 							: "border-transparent"
 				])}
-				bind:value={content}
+				bind:value={inputValue}
 			/>
 		{/if}
 	</div>
