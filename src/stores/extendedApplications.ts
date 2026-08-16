@@ -15,6 +15,7 @@ const applicationsStore = writable<ExtendedApplication[]>([]);
 export const extendedApplicationsLoading = writable(false);
 
 let _lastRaw: Application[] | undefined;
+let requestVersion = 0;
 const recruitmentCache = new Map<string, Recruitment>();
 
 /**
@@ -27,6 +28,7 @@ export function loadExtendedApplications(rawApplications: Application[]): void {
 		return;
 	}
 	_lastRaw = rawApplications;
+	const currentRequest = ++requestVersion;
 
 	if (!rawApplications?.length) {
 		applicationsStore.set([]);
@@ -34,6 +36,7 @@ export function loadExtendedApplications(rawApplications: Application[]): void {
 		return;
 	}
 
+	applicationsStore.set([]);
 	extendedApplicationsLoading.set(true);
 	Promise.all(
 		rawApplications.map(async (application) => {
@@ -55,12 +58,15 @@ export function loadExtendedApplications(rawApplications: Application[]): void {
 	)
 		.then((res) => {
 			// 防止竞态问题：只接受最新一次请求的结果
-			if (_lastRaw === rawApplications) {
+			if (currentRequest === requestVersion) {
 				applicationsStore.set(res);
 			}
 		})
+		.catch(() => {
+			if (currentRequest === requestVersion) applicationsStore.set([]);
+		})
 		.finally(() => {
-			extendedApplicationsLoading.set(false);
+			if (currentRequest === requestVersion) extendedApplicationsLoading.set(false);
 		});
 }
 

@@ -85,11 +85,13 @@ try {
 	await reset("unregistered");
 	console.log("Testing unregistered candidate sign-up flow");
 	await page.reload({ waitUntil: "domcontentloaded" });
-	await page.getByText("报名", { exact: true }).waitFor();
-	await page.getByText("个人信息", { exact: true }).click();
+	await page.getByText("个人信息", { exact: true }).first().click();
+	await page.getByText("报名", { exact: true }).first().waitFor();
 	await page.getByText("编辑", { exact: true }).click();
+	await page.getByText("保存", { exact: true }).click();
+	await page.getByText("本地保存成功", { exact: true }).waitFor();
 	await page.getByText("报名", { exact: true }).first().click();
-	await page.getByText("确认报名", { exact: true }).click();
+	await page.getByText("报名", { exact: true }).last().click();
 	await page.getByText("报名成功", { exact: true }).waitFor();
 
 	const signUpState = await state();

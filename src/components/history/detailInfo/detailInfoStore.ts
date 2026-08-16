@@ -244,6 +244,10 @@ export async function fetchWrittenTest(applicationInfo: Application) {
 		return cached.promise;
 	}
 
+	const previousLink = get(writtenTestLink);
+	if (previousLink.startsWith("blob:")) URL.revokeObjectURL(previousLink);
+	writtenTestLink.set("");
+	writtenTestType.set(WrittenTestType.None);
 	isGettingWrittenTestFile.set(true);
 	const promise = (async () => {
 		const typeResp = await getWrittenTestType(
@@ -283,9 +287,13 @@ export async function fetchWrittenTest(applicationInfo: Application) {
 		}
 
 		writtenTestType.set(WrittenTestType.None);
-	})().finally(() => {
-		isGettingWrittenTestFile.set(false);
-	});
+	})()
+		.catch(() => {
+			Message.warning(translate("history.writeTest.downloadError"));
+		})
+		.finally(() => {
+			isGettingWrittenTestFile.set(false);
+		});
 
 	requestState.update((state) => ({
 		...state,

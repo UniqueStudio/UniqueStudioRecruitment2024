@@ -7,6 +7,25 @@ import { departments, type Departments } from "./departments";
 import { Message } from "../utils/Message";
 import { translate } from "../utils/t";
 
+const departmentUrl = `${import.meta.env.BASE_URL}DEPARTMENTS.json`;
+
+async function loadDefaultDepartments(): Promise<Departments> {
+	let lastError: Error | undefined;
+	for (let attempt = 0; attempt < 3; attempt += 1) {
+		try {
+			const response = await fetch(departmentUrl);
+			if (!response.ok) throw new Error(`加载默认专业列表失败: ${response.status}`);
+			const data = (await response.json()) as Departments;
+			if (!Object.values(data).every(Array.isArray)) throw new Error("默认专业列表格式错误");
+			return data;
+		} catch (error) {
+			lastError = error instanceof Error ? error : new Error("加载默认专业列表失败");
+			if (attempt < 2) await new Promise((resolve) => setTimeout(resolve, 250 * 2 ** attempt));
+		}
+	}
+	throw lastError;
+}
+
 /**
  * 应用初始化：一次性拉取用户信息、最新招募和部门列表
  * 供 App.svelte 在挂载时调用
@@ -47,19 +66,8 @@ export function initializeApp(): void {
 	}
 
 	if (!Object.keys($departments).length) {
-		fetch(`${import.meta.env.BASE_URL}DEPARTMENTS.json`)
-			.then((response) => {
-				if (!response.ok) {
-					throw new Error(`加载默认专业列表失败: ${response.status}`);
-				}
-				return response.json() as Promise<Departments>;
-			})
-			.then((data) => {
-				if (!Object.values(data).every(Array.isArray)) {
-					throw new Error("默认专业列表格式错误");
-				}
-				departments.setDepartments(data);
-			})
+		loadDefaultDepartments()
+			.then(departments.setDepartments)
 			.catch((error: Error) => {
 				console.error(error.message);
 				Message.error(translate("header.getInfoFailed"));

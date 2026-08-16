@@ -38,8 +38,8 @@ const isApplicationMutipleGroups = (value: unknown): value is ApplicationMutiple
 	);
 };
 
-const getValidatedInitValue = (): ApplicationMutipleGroups | undefined => {
-	const raw = localStorage.getItem("latest");
+const getValidatedValue = (key: string): ApplicationMutipleGroups | undefined => {
+	const raw = localStorage.getItem(key);
 	if (!raw) return undefined;
 
 	try {
@@ -49,7 +49,7 @@ const getValidatedInitValue = (): ApplicationMutipleGroups | undefined => {
 		// Ignore malformed JSON and clear stale cache below.
 	}
 
-	localStorage.removeItem("latest");
+	localStorage.removeItem(key);
 	return undefined;
 };
 
@@ -96,33 +96,28 @@ const createDraftFromUser = (user: User | undefined): ApplicationMutipleGroups |
 // 该 store 只保存“用户资料页编辑草稿”，不是后端真值。
 // 后端真值统一放在 userInfo store。
 const createLatestDraftStore = () => {
-	const initValue = getValidatedInitValue();
-	const { set, subscribe, update } = writable<ApplicationMutipleGroups | undefined>(initValue);
+	const { set, subscribe, update } = writable<ApplicationMutipleGroups | undefined>(undefined);
+	const storageKey = (uid: string) => `latest:${uid}`;
 
-	const persist = (data: ApplicationMutipleGroups | undefined) => {
-		if (!data) {
-			// localStorage.removeItem("latest");
-			console.trace();
-			return;
-		}
-		localStorage.setItem("latest", JSON.stringify(data));
+	const persist = (uid: string, data: ApplicationMutipleGroups) => {
+		localStorage.setItem(storageKey(uid), JSON.stringify(data));
 	};
 
 	const hydrateFromUser = (user: User) => {
-		const draft = createDraftFromUser(user);
-		if (!draft) {
-			// set(undefined);
-			// persist(undefined);
+		const applicationDraft = createDraftFromUser(user);
+		if (applicationDraft) {
+			set(applicationDraft);
+			persist(user.uid, applicationDraft);
 			return;
 		}
 
-		set(draft);
-		persist(draft);
+		set(getValidatedValue(storageKey(user.uid)) ?? createEmptyDraft(user));
 	};
 
 	const patchDraft = (info: EditableInfo) => {
 		update((oldInfo) => {
 			const currentUser = get(userInfo);
+			if (!currentUser) return oldInfo;
 			const baseDraft =
 				oldInfo ?? createDraftFromUser(currentUser) ?? createEmptyDraft(currentUser);
 
@@ -136,7 +131,7 @@ const createLatestDraftStore = () => {
 				});
 			});
 
-			persist(newInfo);
+			persist(currentUser.uid, newInfo);
 			return newInfo;
 		});
 	};
