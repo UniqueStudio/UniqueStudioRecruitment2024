@@ -1,4 +1,4 @@
-import adapter from "@sveltejs/adapter-auto";
+import adapter from "@sveltejs/adapter-static";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 
 export default {
@@ -6,7 +6,11 @@ export default {
 	// for more information about preprocessors
 	preprocess: vitePreprocess(),
 	kit: {
-		adapter: adapter(),
+		adapter: adapter({
+			assets: "dist",
+			pages: "dist",
+			fallback: "index.html"
+		}),
 		files: {
 			assets: "public"
 		}

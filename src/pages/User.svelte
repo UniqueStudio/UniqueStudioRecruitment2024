@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { run } from "svelte/legacy";
-
 	/* eslint-disable svelte/no-at-html-tags */
 
 	import { fade, fly } from "svelte/transition";
@@ -39,6 +37,7 @@
 	let showSignUpModal = $state(false);
 	let resume: File = $state();
 	let fileInput: HTMLInputElement = $state();
+	let formInitialized = $state(false);
 	interface DraftFormState {
 		rank: string;
 		referrer: string;
@@ -86,10 +85,26 @@
 		($latestDraft?.is_project_c ?? false)
 			? $t("user.selector.projectC")[0]
 			: $t("user.selector.projectC")[1];
-	run(() => {
-		if ($userInfo?.qq_account || $latestDraft?.qq_account) {
-			qq_account = $userInfo?.qq_account || $latestDraft?.qq_account || "";
-		}
+
+	$effect(() => {
+		const draft = $latestDraft;
+		if (!draft || formInitialized) return;
+
+		({
+			rank = "",
+			referrer = "",
+			major = "",
+			qq_account = "",
+			institute = "",
+			groups = [],
+			grade = "",
+			intro = "",
+			is_quick = false,
+			is_project_c = false
+		} = draft);
+		isQuick = is_quick ? $t("user.quick") : $t("user.notQuick");
+		isProjectC = is_project_c ? $t("user.selector.projectC")[0] : $t("user.selector.projectC")[1];
+		formInitialized = true;
 	});
 
 	localeLanguage.subscribe(() => {
@@ -135,6 +150,8 @@
 			is_quick = false,
 			is_project_c = false
 		} = $latestDraft || {});
+		isQuick = is_quick ? $t("user.quick") : $t("user.notQuick");
+		isProjectC = is_project_c ? $t("user.selector.projectC")[0] : $t("user.selector.projectC")[1];
 		resume = undefined;
 		editMode.out();
 	};
@@ -372,6 +389,7 @@
 							necessary
 							name={$t("user.isQuick")}
 							bind:content={isQuick}
+							onChange={(value) => (is_quick = value === $t("user.quick"))}
 							selectItems={quicks}
 						/>
 						{#snippet content()}
