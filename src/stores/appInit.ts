@@ -3,9 +3,7 @@ import { userInfo } from "./userInfo";
 import { latestDraft } from "./latestDraft";
 import { recruitment } from "./recruitment";
 import { getLatestRecruitment } from "../requests/recruitment/getLatest";
-import { departments } from "./departments";
-import { getDepartments } from "../requests/config/getDepartments";
-import { parseDepartments } from "../utils/parseDepartments";
+import { departments, type Departments } from "./departments";
 import { Message } from "../utils/Message";
 import { translate } from "../utils/t";
 
@@ -48,27 +46,23 @@ export function initializeApp(): void {
 			});
 	}
 
-	if (!$departments.length) {
-		getDepartments()
-			.then((resp) => parseDepartments(resp.data.nodes))
-			.then((resp) => {
-				const keys = Object.keys(resp);
-				if (keys.length <= 10) {
-					throw Error("专业个数过少");
+	if (!Object.keys($departments).length) {
+		fetch(`${import.meta.env.BASE_URL}DEPARTMENTS.json`)
+			.then((response) => {
+				if (!response.ok) {
+					throw new Error(`加载默认专业列表失败: ${response.status}`);
 				}
-				const firstKey = keys[0];
-				if (typeof firstKey !== "string") {
-					throw Error("firstKey 应为 string");
-				}
-				if (!Array.isArray(resp[firstKey])) {
-					throw Error("元素不为数组");
-				}
-				return resp;
+				return response.json() as Promise<Departments>;
 			})
-			.catch(async (e: Error) => {
-				console.error("解析 飞书 专业列表报错：", e.message, "进入fallback");
-				return (await import("../config/DEPARTMENTS")).default;
+			.then((data) => {
+				if (!Object.values(data).every(Array.isArray)) {
+					throw new Error("默认专业列表格式错误");
+				}
+				departments.setDepartments(data);
 			})
-			.then(departments.setDepartments);
+			.catch((error: Error) => {
+				console.error(error.message);
+				Message.error(translate("header.getInfoFailed"));
+			});
 	}
 }

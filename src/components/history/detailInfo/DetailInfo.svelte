@@ -158,69 +158,73 @@
 			{/if}
 		{/if}
 	{:else if step === $t("history.step.GroupTimeSelection")}
-		{#await $interviewTimesPromise}
-			<p>{$t("history.groupInterviewTimeSelector.loading")}</p>
-		{:then res}
-			<div class="space-y-2">
-				<!-- todo/: res.data.filter过期时间and已满时间 -->
-				<TimeSelector
-					type="group"
-					aid={applicationInfo.uid}
-					times={res.data}
-					maxSelected={1}
-					selectedTimes={getApplicationInfoSelectedTimeIds({
-						applicationInfo,
-						type: "group",
-						isSingleMode: true
-					})}
-					onSelectTime={createApplicationInfoSelectTimeHandler({
-						applicationInfo,
-						times: res.data,
-						onUpdated: () => (applicationInfo = applicationInfo)
-					})}
-					onReloadTimes={interviewTimesController.reload}
-					enableSlot={true}
-				>
-					{#snippet timeSlot({ time })}
-						<div class="flex items-center gap-1">
-							<span class="bg-green-400 h-2 w-2 rounded-full"></span>
-							<span class="text-xs">剩余 {time.slot_number - time.select_number} 个位置</span>
-						</div>
-					{/snippet}
-				</TimeSelector>
-				<div class="text-gray-500 flex items-center gap-1 text-sm">
-					<Popover>
-						<span
-							>选择候选时间<span
-								class="ml-1 inline h-5 w-5 cursor-pointer items-center justify-center text-blue-400"
-								>?</span
-							></span
-						>
-						{#snippet content()}
-							<span
-								>请勾选所有您方便参加面试的时段，作为您的备选时段。若原定排期需调整，面试官将优先从您的候选名单中进行匹配并及时通知您。</span
-							>
+		{#if $interviewTimesPromise}
+			{#await $interviewTimesPromise}
+				<p>{$t("history.groupInterviewTimeSelector.loading")}</p>
+			{:then res}
+				<div class="space-y-2">
+					<!-- todo/: res.data.filter过期时间and已满时间 -->
+					<TimeSelector
+						type="group"
+						aid={applicationInfo.uid}
+						times={res.data}
+						maxSelected={1}
+						selectedTimes={getApplicationInfoSelectedTimeIds({
+							applicationInfo,
+							type: "group",
+							isSingleMode: true
+						})}
+						onSelectTime={createApplicationInfoSelectTimeHandler({
+							applicationInfo,
+							times: res.data,
+							onUpdated: () => (applicationInfo = applicationInfo)
+						})}
+						onReloadTimes={interviewTimesController.reload}
+						enableSlot={true}
+					>
+						{#snippet timeSlot({ time })}
+							<div class="flex items-center gap-1">
+								<span class="bg-green-400 h-2 w-2 rounded-full"></span>
+								<span class="text-xs">剩余 {time.slot_number - time.select_number} 个位置</span>
+							</div>
 						{/snippet}
-					</Popover>
+					</TimeSelector>
+					<div class="text-gray-500 flex items-center gap-1 text-sm">
+						<Popover>
+							<span
+								>选择候选时间<span
+									class="ml-1 inline h-5 w-5 cursor-pointer items-center justify-center text-blue-400"
+									>?</span
+								></span
+							>
+							{#snippet content()}
+								<span
+									>请勾选所有您方便参加面试的时段，作为您的备选时段。若原定排期需调整，面试官将优先从您的候选名单中进行匹配并及时通知您。</span
+								>
+							{/snippet}
+						</Popover>
+					</div>
+					<TimeSelector
+						type="group"
+						aid={applicationInfo.uid}
+						times={res.data}
+						maxSelected={0}
+						selectedTimes={getApplicationInfoSelectedTimeIds({
+							applicationInfo,
+							type: "group",
+							isSingleMode: false
+						})}
+						onSelectTime={createApplicationInfoSelectTimeHandler({
+							applicationInfo,
+							times: res.data,
+							onUpdated: () => (applicationInfo = applicationInfo)
+						})}
+					/>
 				</div>
-				<TimeSelector
-					type="group"
-					aid={applicationInfo.uid}
-					times={res.data}
-					maxSelected={0}
-					selectedTimes={getApplicationInfoSelectedTimeIds({
-						applicationInfo,
-						type: "group",
-						isSingleMode: false
-					})}
-					onSelectTime={createApplicationInfoSelectTimeHandler({
-						applicationInfo,
-						times: res.data,
-						onUpdated: () => (applicationInfo = applicationInfo)
-					})}
-				/>
-			</div>
-		{/await}
+			{/await}
+		{:else}
+			<p>{$t("history.groupInterviewTimeSelector.loading")}</p>
+		{/if}
 	{:else if step === $t("history.step.GroupInterview")}
 		<InterviewInfo
 			group={applicationInfo.group}
@@ -238,61 +242,65 @@
 				$formatTime($recruitment.stress_test_start)}
 		/>
 	{:else if step === $t("history.step.TeamTimeSelection")}
-		{#await $interviewTimesPromise}
-			<p>{$t("history.teamInterviewTimeSelector.loading")}</p>
-		{:then res}
-			<div class="space-y-2">
-				<TimeSelector
-					type="team"
-					aid={applicationInfo.uid}
-					times={res.data}
-					maxSelected={1}
-					selectedTimes={getApplicationInfoSelectedTimeIds({
-						applicationInfo,
-						type: "team",
-						isSingleMode: true
-					})}
-					onSelectTime={createApplicationInfoSelectTimeHandler({
-						applicationInfo,
-						times: res.data,
-						onUpdated: () => (applicationInfo = applicationInfo)
-					})}
-					onReloadTimes={interviewTimesController.reload}
-					enableSlot={true}
-				>
-					{#snippet timeSlot({ time })}
-						<div class="flex items-center gap-1">
-							<span class="bg-green-400 h-2 w-2 rounded-full"></span>
-							<span class="text-xs">剩余 {time.slot_number - time.select_number} 个位置</span>
-						</div>
-					{/snippet}
-				</TimeSelector>
-				<div class="text-gray-500 flex items-center gap-1 text-sm">
-					<Popover>
-						<span>选择候选时间</span>
-						{#snippet content()}
-							<span> 请选择所有可以参与面试的时间，以供面试官调整 </span>
+		{#if $interviewTimesPromise}
+			{#await $interviewTimesPromise}
+				<p>{$t("history.teamInterviewTimeSelector.loading")}</p>
+			{:then res}
+				<div class="space-y-2">
+					<TimeSelector
+						type="team"
+						aid={applicationInfo.uid}
+						times={res.data}
+						maxSelected={1}
+						selectedTimes={getApplicationInfoSelectedTimeIds({
+							applicationInfo,
+							type: "team",
+							isSingleMode: true
+						})}
+						onSelectTime={createApplicationInfoSelectTimeHandler({
+							applicationInfo,
+							times: res.data,
+							onUpdated: () => (applicationInfo = applicationInfo)
+						})}
+						onReloadTimes={interviewTimesController.reload}
+						enableSlot={true}
+					>
+						{#snippet timeSlot({ time })}
+							<div class="flex items-center gap-1">
+								<span class="bg-green-400 h-2 w-2 rounded-full"></span>
+								<span class="text-xs">剩余 {time.slot_number - time.select_number} 个位置</span>
+							</div>
 						{/snippet}
-					</Popover>
+					</TimeSelector>
+					<div class="text-gray-500 flex items-center gap-1 text-sm">
+						<Popover>
+							<span>选择候选时间</span>
+							{#snippet content()}
+								<span> 请选择所有可以参与面试的时间，以供面试官调整 </span>
+							{/snippet}
+						</Popover>
+					</div>
+					<TimeSelector
+						type="team"
+						aid={applicationInfo.uid}
+						times={res.data}
+						maxSelected={0}
+						selectedTimes={getApplicationInfoSelectedTimeIds({
+							applicationInfo,
+							type: "team",
+							isSingleMode: false
+						})}
+						onSelectTime={createApplicationInfoSelectTimeHandler({
+							applicationInfo,
+							times: res.data,
+							onUpdated: () => (applicationInfo = applicationInfo)
+						})}
+					/>
 				</div>
-				<TimeSelector
-					type="team"
-					aid={applicationInfo.uid}
-					times={res.data}
-					maxSelected={0}
-					selectedTimes={getApplicationInfoSelectedTimeIds({
-						applicationInfo,
-						type: "team",
-						isSingleMode: false
-					})}
-					onSelectTime={createApplicationInfoSelectTimeHandler({
-						applicationInfo,
-						times: res.data,
-						onUpdated: () => (applicationInfo = applicationInfo)
-					})}
-				/>
-			</div>
-		{/await}
+			{/await}
+		{:else}
+			<p>{$t("history.teamInterviewTimeSelector.loading")}</p>
+		{/if}
 	{:else if step === $t("history.step.TeamInterview")}
 		<InterviewInfo
 			time={applicationInfo.interview_allocations_team.uid
