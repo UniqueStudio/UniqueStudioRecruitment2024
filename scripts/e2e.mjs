@@ -71,7 +71,11 @@ try {
 
 	console.log("Testing registered candidate profile save flow");
 	await page.goto(`${appUrl}/user`, { waitUntil: "domcontentloaded" });
-	await page.locator("p").filter({ hasText: /^个人信息$/ }).first().waitFor();
+	await page
+		.locator("p")
+		.filter({ hasText: /^个人信息$/ })
+		.first()
+		.waitFor();
 	await page.getByText("编辑", { exact: true }).click();
 	await page.getByText("保存", { exact: true }).click();
 	await page.getByText("保存成功", { exact: true }).waitFor();

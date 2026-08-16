@@ -14,7 +14,6 @@
 	import Popover from "../components/public/Popover.svelte";
 	import { latestDraft } from "../stores/latestDraft";
 	import Modal from "../components/public/Modal.svelte";
-	import { Message } from "../utils/Message";
 	import { parseTitle } from "../utils/parseTitle";
 	import { t } from "../utils/t";
 	import { departments } from "../stores/departments";
@@ -53,7 +52,6 @@
 		grade = "",
 		intro = "",
 		is_quick = false,
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		is_project_c = false
 	}: DraftFormState = $state({
 		rank: $latestDraft?.rank ?? "",
