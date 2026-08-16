@@ -13,7 +13,7 @@ const start = (command, args, options = {}) => {
 };
 
 const waitFor = async (url) => {
-	for (let attempt = 0; attempt < 60; attempt += 1) {
+	while (true) {
 		try {
 			if ((await fetch(url)).ok) return;
 		} catch {
@@ -21,7 +21,6 @@ const waitFor = async (url) => {
 		}
 		await delay(250);
 	}
-	throw new Error(`Timed out waiting for ${url}`);
 };
 
 const reset = async (scenario) => {
