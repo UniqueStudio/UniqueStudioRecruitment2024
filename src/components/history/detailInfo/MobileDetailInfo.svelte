@@ -29,7 +29,8 @@
 		fetchWrittenTest,
 		doUpload,
 		createApplicationInfoSelectTimeHandler,
-		getApplicationInfoSelectedTimeIds
+		getApplicationInfoSelectedTimeIds,
+		getAvailableInterviewTimes
 	} from "./detailInfoStore";
 
 	interface Props {
@@ -252,7 +253,12 @@
 				<TimeSelector
 					type="group"
 					aid={applicationInfo.uid}
-					times={res.data}
+					times={getAvailableInterviewTimes({
+						times: res.data,
+						applicationInfo,
+						type: "group",
+						isSingleMode: true
+					})}
 					maxSelected={1}
 					selectedTimes={getApplicationInfoSelectedTimeIds({
 						applicationInfo,
@@ -288,7 +294,12 @@
 				<TimeSelector
 					type="group"
 					aid={applicationInfo.uid}
-					times={res.data}
+					times={getAvailableInterviewTimes({
+						times: res.data,
+						applicationInfo,
+						type: "group",
+						isSingleMode: false
+					})}
 					maxSelected={0}
 					selectedTimes={getApplicationInfoSelectedTimeIds({
 						applicationInfo,
@@ -321,7 +332,12 @@
 				<TimeSelector
 					type="team"
 					aid={applicationInfo.uid}
-					times={res.data}
+					times={getAvailableInterviewTimes({
+						times: res.data,
+						applicationInfo,
+						type: "team",
+						isSingleMode: true
+					})}
 					maxSelected={1}
 					selectedTimes={getApplicationInfoSelectedTimeIds({
 						applicationInfo,
@@ -356,7 +372,12 @@
 				<TimeSelector
 					type="team"
 					aid={applicationInfo.uid}
-					times={res.data}
+					times={getAvailableInterviewTimes({
+						times: res.data,
+						applicationInfo,
+						type: "team",
+						isSingleMode: false
+					})}
 					maxSelected={0}
 					selectedTimes={getApplicationInfoSelectedTimeIds({
 						applicationInfo,

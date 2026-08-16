@@ -237,6 +237,24 @@ export function getApplicationInfoSelectedTimeIds(params: {
 	return applicationInfo.interview_selections?.map((selection) => selection.uid) ?? [];
 }
 
+export function getAvailableInterviewTimes(params: {
+	times: SingleTime[];
+	applicationInfo: Application;
+	type: "team" | "group";
+	isSingleMode: boolean;
+}) {
+	const { times, applicationInfo, type, isSingleMode } = params;
+	const selectedIds = getApplicationInfoSelectedTimeIds({ applicationInfo, type, isSingleMode });
+
+	return times
+		.filter((time) => {
+			if (selectedIds.includes(time.uid)) return true;
+			if (new Date(time.start).getTime() <= Date.now()) return false;
+			return !isSingleMode || time.slot_number > time.select_number;
+		})
+		.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
+}
+
 export async function fetchWrittenTest(applicationInfo: Application) {
 	const key = writtenTestCacheKey(applicationInfo);
 	const cached = get(requestState).writtenTest;
