@@ -3,14 +3,10 @@
 
 	import { fade, fly } from "svelte/transition";
 	import UserInfoTitle from "../components/user/UserInfoTitle.svelte";
-	import SingleInputInfo from "../components/user/SingleInputInfo.svelte";
-	import SingleSelectInfo from "../components/user/SingleSelectInfo.svelte";
-	import SearchableSelectInfo from "../components/user/SearchableSelectInfo.svelte";
+	import UserProfileForm from "../components/user/UserProfileForm.svelte";
+	import UserResumeSection from "../components/user/UserResumeSection.svelte";
 	import edit from "/src/assets/edit.svg";
-	import cx from "clsx";
 	import Button from "../components/public/Button.svelte";
-	import word from "../assets/word.svg";
-	import { GENDERS, Group, GroupGroup } from "../config/const";
 	import type { College } from "../types";
 	import { userInfo } from "../stores/userInfo";
 	import { getResume } from "../requests/user/getResume";
@@ -21,10 +17,7 @@
 	import { Message } from "../utils/Message";
 	import { parseTitle } from "../utils/parseTitle";
 	import { t } from "../utils/t";
-	import { localeLanguage } from "../stores/localeLanguage";
-	import uploadSvg from "../assets/upload.svg";
 	import { departments } from "../stores/departments";
-	import MultiSelectInfo from "../components/user/MultiSelectInfo.svelte";
 	import { globalLoading } from "../stores/globalLoading";
 	import { editMode } from "../stores/editMode";
 	import {
@@ -36,7 +29,6 @@
 	let isUploading = $state(false);
 	let showSignUpModal = $state(false);
 	let resume: File = $state();
-	let fileInput: HTMLInputElement = $state();
 	let formInitialized = $state(false);
 	interface DraftFormState {
 		rank: string;
@@ -81,15 +73,13 @@
 	let genders = $derived($t("user.selector.gender") as unknown as string[]);
 	let grades = $derived($t("user.selector.grade") as unknown as string[]);
 	let isQuick = $state(($latestDraft?.is_quick ?? false) ? $t("user.quick") : $t("user.notQuick"));
-	let isProjectC =
+	let isProjectC = $state(
 		($latestDraft?.is_project_c ?? false)
 			? $t("user.selector.projectC")[0]
-			: $t("user.selector.projectC")[1];
+			: $t("user.selector.projectC")[1]
+	);
 
-	$effect(() => {
-		const draft = $latestDraft;
-		if (!draft || formInitialized) return;
-
+	const applyDraft = (draft: Partial<DraftFormState> = {}) => {
 		({
 			rank = "",
 			referrer = "",
@@ -102,25 +92,23 @@
 			is_quick = false,
 			is_project_c = false
 		} = draft);
+	};
+
+	$effect(() => {
 		isQuick = is_quick ? $t("user.quick") : $t("user.notQuick");
 		isProjectC = is_project_c ? $t("user.selector.projectC")[0] : $t("user.selector.projectC")[1];
+	});
+
+	$effect(() => {
+		const draft = $latestDraft;
+		if (!draft || formInitialized) return;
+
+		applyDraft(draft);
 		formInitialized = true;
 	});
 
-	localeLanguage.subscribe(() => {
-		Promise.resolve().then(() => {
-			isQuick = is_quick ? $t("user.quick") : $t("user.notQuick");
-		});
-	});
 	let quicks = $derived($t("user.selector.isQuick") as unknown as string[]);
 	// $: projectC = $t("user.selector.projectC") as unknown as string[];
-
-	let groupGroupSelected = $derived(
-		GroupGroup.map((group) => group.find((g) => groups.some((gg) => Group[gg] === g)) || "") as [
-			string | null,
-			string | null
-		]
-	);
 
 	let groupGroupTitles = $derived($t("user.selector.groupGroup") as unknown as [string, string]);
 	let hasAppliedCurrentRecruitment = $derived(
@@ -138,20 +126,7 @@
 		getResume($userInfo.applications[0].uid, downloadResumeName);
 	};
 	const closeEditMode = () => {
-		({
-			rank = "",
-			referrer = "",
-			major = "",
-			qq_account = "",
-			institute = "",
-			groups = [],
-			grade = "",
-			intro = "",
-			is_quick = false,
-			is_project_c = false
-		} = $latestDraft || {});
-		isQuick = is_quick ? $t("user.quick") : $t("user.notQuick");
-		isProjectC = is_project_c ? $t("user.selector.projectC")[0] : $t("user.selector.projectC")[1];
+		applyDraft($latestDraft);
 		resume = undefined;
 		editMode.out();
 	};
@@ -276,215 +251,39 @@
 					})}
 				</p>
 			{/if}
-			<div class=" mb-[2rem] w-full gap-[2rem] lg:grid lg:grid-cols-2">
-				<SingleInputInfo
-					necessary
-					name={$t("user.name")}
-					bind:content={$userInfo.name}
-					tips={$t("user.changeUserInfoTip")}
-					editMode={$editMode}
-					isDisabled={true}
-				/>
-				<SingleSelectInfo
-					necessary
-					name={$t("user.gender")}
-					content={GENDERS[$userInfo.gender - 1]}
-					selectItems={genders}
-				/>
-				<SingleSelectInfo
-					necessary
-					editMode={$editMode}
-					name={$t("user.grade")}
-					bind:content={grade}
-					selectItems={grades}
-				/>
-				<SearchableSelectInfo
-					selectItems={colleges}
-					editMode={$editMode}
-					onChange={() => (major = "")}
-					necessary
-					name={$t("user.college")}
-					bind:content={institute}
-				/>
-				<SearchableSelectInfo
-					placeholder={majors.length ? "" : "请选择学院"}
-					selectItems={majors}
-					editMode={$editMode}
-					necessary
-					name={$t("user.major")}
-					bind:content={major}
-				/>
-				<SingleSelectInfo
-					editMode={$editMode}
-					necessary
-					name={$t("user.rank")}
-					bind:content={rank}
-					selectItems={ranks}
-				/>
-				<SingleInputInfo
-					editMode={$editMode}
-					necessary
-					name={$t("user.qq")}
-					bind:content={qq_account}
-					tips={$t("user.changeUserInfoTip")}
-					isDisabled={true}
-				/>
-				<SingleInputInfo
-					necessary
-					name={$t("user.phone")}
-					bind:content={$userInfo.phone}
-					tips={$t("user.changeUserInfoTip")}
-					editMode={$editMode}
-					isDisabled={true}
-				/>
-				<SingleInputInfo
-					necessary
-					name={$t("user.email")}
-					bind:content={$userInfo.email}
-					tips={$t("user.changeUserInfoTip")}
-					editMode={$editMode}
-					isDisabled={true}
-				/>
-				<SingleInputInfo
-					editMode={$editMode}
-					name={$t("user.recommender")}
-					bind:content={referrer}
-				/>
-				<div class="col-span-1 max-w-full gap-[1rem]">
-					<Popover
-						style="white"
-						direct="left-top"
-						questionDirection="end"
-						className="w-full max-sm:mt-[-1.5rem]"
-					>
-						<MultiSelectInfo
-							className="flex-shrink-0 max-sm:w-[calc(100%_-_24px)]"
-							editMode={$editMode && !hasAppliedCurrentRecruitment}
-							necessary
-							name={$t("user.group")}
-							selectedItems={groupGroupSelected}
-							onChange={(items) => {
-								groups = items
-									.map((item) => Object.entries(Group).find(([, v]) => v === item)?.[0])
-									.filter((g) => g);
-							}}
-							selectItems={GroupGroup}
-							columnTitles={groupGroupTitles}
-						/>
-						{#snippet content()}
-							<p class="w-[300px]">{$t("user.groupTips")}</p>
-						{/snippet}
-					</Popover>
-				</div>
-				<div class="col-span-1 max-w-full gap-[1rem]">
-					<Popover
-						style="white"
-						direct="left-top"
-						questionDirection="end"
-						className="w-full max-sm:mt-[-1.5rem]"
-					>
-						<SingleSelectInfo
-							className="flex-shrink-0 max-sm:w-[calc(100%_-_24px)]"
-							editMode={$editMode}
-							necessary
-							name={$t("user.isQuick")}
-							bind:content={isQuick}
-							onChange={(value) => (is_quick = value === $t("user.quick"))}
-							selectItems={quicks}
-						/>
-						{#snippet content()}
-							<p class="w-[300px]">{$t("user.isQuickTips")}</p>
-						{/snippet}
-					</Popover>
-				</div>
-				<div class="col-span-2 flex gap-[1rem]">
-					<p class="mt-[0.75rem] shrink-0 max-sm:text-xs">
-						<span class="text-blue-300">*</span>{$t("user.selfIntro")}
-					</p>
-					<textarea
-						bind:value={intro}
-						disabled={!$editMode}
-						placeholder={$t("user.placeholder")}
-						class={cx([
-							"h-[10rem] w-full resize-none rounded-[8px] border-[1px] bg-[#FAFAFA] p-[0.75rem_1rem] outline-none transition-all focus:border-[#165DFF] max-sm:text-xs",
-							$editMode ? "border-gray-200 bg-transparent" : "border-transparent"
-						])}
-					></textarea>
-				</div>
-			</div>
+			<UserProfileForm
+				user={$userInfo}
+				editMode={$editMode}
+				{hasAppliedCurrentRecruitment}
+				{colleges}
+				{majors}
+				{genders}
+				{grades}
+				{ranks}
+				{quicks}
+				{groupGroupTitles}
+				bind:grade
+				bind:institute
+				bind:major
+				bind:rank
+				bind:qqAccount={qq_account}
+				bind:referrer
+				bind:groups
+				bind:isQuick
+				bind:intro
+				onQuickChange={(value) => (is_quick = value === $t("user.quick"))}
+			/>
 			<div class="mb-[2rem] h-[1px] w-full bg-[#E5E6EB]"></div>
-			<UserInfoTitle title={$t("user.attachment")} />
-			<div
-				class="flex-col items-center gap-[1rem] rounded-[1rem] bg-[#FAFAFA] py-[2rem] max-sm:rounded-[4px] max-sm:p-[18px] sm:flex sm:justify-center"
-			>
-				{#if $editMode}
-					<div onclick={() => fileInput.click()} class="flex gap-[1rem] sm:hidden">
-						<img src={uploadSvg} alt="upload" />
-						<div>
-							<p class="my-[4px] text-sm font-bold">{$t("user.upload")}</p>
-							<p class=" text-xs text-text-3">
-								{$t("user.resumePopover")}
-							</p>
-							{#if resume}
-								<p class="mt-[4px] text-xs">{resume.name}</p>
-							{/if}
-						</div>
-					</div>
-					<p class="text-lg font-bold max-sm:hidden">{$t("user.upload")}</p>
-					<p class="px-[3rem] text-center text-xs text-text-3 max-sm:hidden">
-						{$t("user.resumePopover")}
-					</p>
-					{#if resume}
-						<p class="max-sm:hidden">{resume.name}</p>
-					{:else if hasAppliedCurrentRecruitment && $userInfo.applications[0].resume}
-						<div
-							onclick={downloadResume}
-							class="flex cursor-pointer items-center justify-center gap-[8px] text-center sm:flex-col"
-						>
-							<img src={word} alt="简历" />
-							<p class="max-sm:text-sm">
-								{$parseTitle($recruitment.name)}-{$userInfo.name}-{$t("user.resume")}<br />
-								<span class="text-gray-300"> {downloadResumeName}</span>
-							</p>
-						</div>
-					{/if}
-					<button
-						class="cursor-pointer rounded-[0.5rem] border-[1px] border-[#0A84FF] p-[0.5rem_2rem] text-[#0A84FF] transition-all hover:bg-[#0A84FF] hover:text-white max-sm:hidden"
-						onclick={() => fileInput.click()}
-					>
-						{resume ? $t("user.reselect") : $t("user.select")}
-					</button>
-					<input
-						onchange={() => {
-							const file = fileInput.files[0];
-							if (file && file.size > 20 * 1024 * 1024) {
-								fileInput.value = "";
-								Message.error($t("user.resumeTooLarge"));
-							} else {
-								resume = fileInput.files[0];
-							}
-						}}
-						bind:this={fileInput}
-						type="file"
-						class="hidden"
-					/>
-				{:else if hasAppliedCurrentRecruitment && $userInfo.applications[0]?.resume}
-					<div
-						onclick={downloadResume}
-						class="flex cursor-pointer items-center justify-center gap-[8px] sm:flex-col"
-					>
-						<img src={word} alt="简历" />
-						<p class="text-center max-sm:text-sm">
-							{$parseTitle($recruitment.name)}-{$userInfo.name}-{$t("user.resume")}<br />
-							<span class="text-gray-300"> {downloadResumeName}</span>
-						</p>
-					</div>
-				{:else}
-					<p class="text-gray-400 select-none text-lg font-bold max-sm:text-sm">
-						{$t("user.noResume")}
-					</p>
-				{/if}
-			</div>
+			<UserResumeSection
+				editMode={$editMode}
+				{hasAppliedCurrentRecruitment}
+				hasResume={Boolean($userInfo.applications[0]?.resume)}
+				userName={$userInfo.name}
+				recruitmentName={$recruitment?.name}
+				{downloadResumeName}
+				onDownload={downloadResume}
+				bind:resume
+			/>
 		{:else}
 			<p class="my-[2rem] text-center text-2xl text-gray-250">暂无个人信息</p>
 		{/if}
