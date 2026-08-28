@@ -9,6 +9,7 @@
 		"prettier-plugin-svelte",
 		"prettier-plugin-tailwindcss"
 	],
+	"tailwindConfig": "./tailwind.config.js",
 	"overrides": [
 		{
 			"files": "*.svelte",
