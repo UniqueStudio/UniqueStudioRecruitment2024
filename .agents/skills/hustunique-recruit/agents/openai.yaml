@@ -1,0 +1,5 @@
+interface:
+  display_name: "HustUnique Recruit"
+  short_description: "通过对话完成 HUST 联创招新报名与进度管理"
+policy:
+  allow_implicit_invocation: false
