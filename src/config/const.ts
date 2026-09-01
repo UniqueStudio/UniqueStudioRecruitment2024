@@ -19,7 +19,7 @@ export const ProcessStateEN = {
 } as const;
 
 export enum GROUP {
-	WEB = "Web",
+	WEB = "Web/Agent",
 	GAME = "Game",
 	LAB = "Lab",
 	AI = "AI",
