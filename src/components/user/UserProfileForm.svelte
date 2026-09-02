@@ -1,6 +1,6 @@
 <script lang="ts">
 	import cx from "clsx";
-	import { GENDERS, Group, GroupGroup } from "../../config/const";
+	import { GENDERS, Group, SelectableGroups } from "../../config/const";
 	import type { User } from "../../types/user";
 	import { t } from "../../utils/t";
 	import Popover from "../public/Popover.svelte";
@@ -53,7 +53,7 @@
 	}: Props = $props();
 
 	let groupSelected = $derived(
-		GroupGroup.find((g) => groups.some((selected) => Group[selected] === g)) ?? ""
+		SelectableGroups.find((g) => groups.some((selected) => Group[selected] === g)) ?? ""
 	);
 
 	const updateGroups = (item?: string) => {
@@ -140,13 +140,14 @@
 			className="w-full max-sm:mt-[-1.5rem]"
 		>
 			<SingleSelectInfo
-				className="flex-shrink-0 max-sm:w-[calc(100%_-_24px)] intention-group [&.intention-group_.select-options-panel]:max-h-[350px]"
+				className="flex-shrink-0 max-sm:w-[calc(100%_-_24px)]"
+				panelClassName="max-h-[350px]"
 				editMode={editMode && !hasAppliedCurrentRecruitment}
 				necessary
 				name={$t("user.group")}
 				content={groupSelected}
 				onChange={updateGroups}
-				selectItems={GroupGroup}
+				selectItems={SelectableGroups}
 			/>
 			{#snippet content()}
 				<p class="w-[300px]">{$t("user.groupTips")}</p>

@@ -44,7 +44,7 @@ export const Group = {
 	blockchain: GROUP.BLOCKCHAIN
 };
 
-export const GroupGroup: string[] = [
+export const SelectableGroups: string[] = [
 	GROUP.WEB,
 	GROUP.LAB,
 	GROUP.AI,
