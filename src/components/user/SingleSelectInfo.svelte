@@ -15,8 +15,6 @@
 		editMode?: boolean;
 		placeholder?: string;
 		className?: string;
-		/** 下拉面板附加类名，用于调用方定制面板样式（如 max-height） */
-		panelClassName?: string;
 		//ly: when bind:content isn't useful, use content & onChange
 		onChange?: (content?: string) => void;
 	}
@@ -29,7 +27,6 @@
 		editMode = false,
 		placeholder = "",
 		className = "",
-		panelClassName = "",
 		onChange = () => {}
 	}: Props = $props();
 
@@ -85,10 +82,7 @@
 		</div>
 		{#if showItems}
 			<div
-				class={cx([
-					"select-options-panel shadow-lg absolute left-0 top-[110%] z-10 max-h-[300px] w-full overflow-y-auto rounded-[4px] border-[1px] border-gray-150 bg-white p-[0.75rem_1rem] shadow-card shadow-gray-150 max-sm:hidden",
-					panelClassName
-				])}
+				class="select-options-panel shadow-lg absolute left-0 top-[110%] z-10 max-h-[300px] w-full overflow-y-auto rounded-[4px] border-[1px] border-gray-150 bg-white p-[0.75rem_1rem] shadow-card shadow-gray-150 max-sm:hidden"
 				transition:slide
 			>
 				{#if placeholder}
