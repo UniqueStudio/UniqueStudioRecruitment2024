@@ -45,8 +45,17 @@ export const Group = {
 };
 
 export const GroupGroup: [string[], string[]] = [
-	[GROUP.WEB, GROUP.LAB, GROUP.AI, GROUP.GAME, GROUP.PM, GROUP.DESIGN, GROUP.MOBILE],
-	[GROUP.BLOCKCHAIN]
+	[
+		GROUP.WEB,
+		GROUP.LAB,
+		GROUP.AI,
+		GROUP.GAME,
+		GROUP.PM,
+		GROUP.DESIGN,
+		GROUP.MOBILE,
+		GROUP.BLOCKCHAIN
+	],
+	[]
 ];
 
 export const DeprecatedGroups = ["android", "ios"];

@@ -130,8 +130,7 @@ export const i18nConstants = {
 			isQuick: "SpeedRun",
 			isQuickTips:
 				"After sign up for SpeedRun, the written test process will be skipped, and there is no need to take the test after passing the group interview. If you do not pass the interview, you can continue with the normal process and participate in recruitment.",
-			groupTips:
-				"You can 1. choose only one regular group 2. choose only the Blockchain group 3. choose one regular group and the Blockchain group",
+			groupTips: "Choose only one group",
 			projectCTips: "What is Blockchain?",
 			BlockchainTips:
 				"For this recruitment, you can either apply specifically for the Blockchain group (by selecting it under 'Preferred Group'), or you can apply for other groups while also checking the option to participate in the Blockchain group.",
@@ -182,8 +181,7 @@ export const i18nConstants = {
 				grade: GRADE_EN,
 				gender: GENDERS_EN,
 				isQuick: ["yes", "no"],
-				projectC: ["join", "disjoin"],
-				groupGroup: ["Regular Groups", "Blockchain Group"]
+				projectC: ["join", "disjoin"]
 			}
 		}
 	},
@@ -296,8 +294,7 @@ export const i18nConstants = {
 			isQuick: "是否快通",
 			isQuickTips:
 				"报名快速通道后，将跳过笔试流程，通过小组面试后无需进行熬测。若未通过面试，也可以继续进行正常流程参与招新",
-			groupTips:
-				"意向组别选择。你可以 1.仅选择一个常规组别 2.仅选择 Blockchain 组别 3.选择一个常规组别并选择 Blockchain 组别",
+			groupTips: "仅可选择一个组别",
 			projectCTips: "什么是Blockchain?",
 			BlockchainTips:
 				"本次招新可以单独报名 Blockchain 组（在意向组别处选择），或者报名其他组别的同时勾选参加 Blockchain 计划",
@@ -339,8 +336,7 @@ export const i18nConstants = {
 				grade: GRADE,
 				gender: GENDERS,
 				isQuick: ["是", "否"],
-				projectC: ["参加", "不参加"],
-				groupGroup: ["常规组别", "Blockchain 组"]
+				projectC: ["参加", "不参加"]
 			}
 		}
 	}
