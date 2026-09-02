@@ -106,9 +106,6 @@
 	});
 
 	let quicks = $derived($t("user.selector.isQuick") as unknown as string[]);
-	// $: projectC = $t("user.selector.projectC") as unknown as string[];
-
-	let groupGroupTitles = $derived($t("user.selector.groupGroup") as unknown as [string, string]);
 	let hasAppliedCurrentRecruitment = $derived(
 		!!$recruitment && $userInfo?.applications[0]?.recruitment_id === $recruitment.uid
 	);
@@ -259,7 +256,6 @@
 				{grades}
 				{ranks}
 				{quicks}
-				{groupGroupTitles}
 				bind:grade
 				bind:institute
 				bind:major

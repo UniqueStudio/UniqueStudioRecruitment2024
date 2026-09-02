@@ -1,10 +1,9 @@
 <script lang="ts">
 	import cx from "clsx";
-	import { GENDERS, Group, GroupGroup } from "../../config/const";
+	import { GENDERS, Group, SelectableGroups } from "../../config/const";
 	import type { User } from "../../types/user";
 	import { t } from "../../utils/t";
 	import Popover from "../public/Popover.svelte";
-	import MultiSelectInfo from "./MultiSelectInfo.svelte";
 	import SearchableSelectInfo from "./SearchableSelectInfo.svelte";
 	import SingleInputInfo from "./SingleInputInfo.svelte";
 	import SingleSelectInfo from "./SingleSelectInfo.svelte";
@@ -19,7 +18,6 @@
 		grades: string[];
 		ranks: string[];
 		quicks: string[];
-		groupGroupTitles: [string, string];
 		grade?: string;
 		institute?: string;
 		major?: string;
@@ -42,7 +40,6 @@
 		grades,
 		ranks,
 		quicks,
-		groupGroupTitles,
 		grade = $bindable(),
 		institute = $bindable(),
 		major = $bindable(),
@@ -55,16 +52,13 @@
 		onQuickChange = () => {}
 	}: Props = $props();
 
-	let groupGroupSelected = $derived(
-		GroupGroup.map(
-			(group) => group.find((g) => groups.some((selected) => Group[selected] === g)) || ""
-		) as [string | null, string | null]
+	let groupSelected = $derived(
+		SelectableGroups.find((g) => groups.some((selected) => Group[selected] === g)) ?? ""
 	);
 
-	const updateGroups = (items: [string | null, string | null]) => {
-		groups = items
-			.map((item) => Object.entries(Group).find(([, value]) => value === item)?.[0])
-			.filter((group): group is string => Boolean(group));
+	const updateGroups = (item?: string) => {
+		const key = Object.entries(Group).find(([, value]) => value === item)?.[0];
+		groups = key ? [key] : [];
 	};
 </script>
 
@@ -145,15 +139,14 @@
 			questionDirection="end"
 			className="w-full max-sm:mt-[-1.5rem]"
 		>
-			<MultiSelectInfo
-				className="flex-shrink-0 max-sm:w-[calc(100%_-_24px)]"
+			<SingleSelectInfo
+				className="flex-shrink-0 max-sm:w-[calc(100%_-_24px)] [&_.select-options-panel]:max-h-[350px]"
 				editMode={editMode && !hasAppliedCurrentRecruitment}
 				necessary
 				name={$t("user.group")}
-				selectedItems={groupGroupSelected}
+				content={groupSelected}
 				onChange={updateGroups}
-				selectItems={GroupGroup}
-				columnTitles={groupGroupTitles}
+				selectItems={SelectableGroups}
 			/>
 			{#snippet content()}
 				<p class="w-[300px]">{$t("user.groupTips")}</p>
