@@ -140,7 +140,7 @@
 			className="w-full max-sm:mt-[-1.5rem]"
 		>
 			<SingleSelectInfo
-				className="flex-shrink-0 max-sm:w-[calc(100%_-_24px)] intention-group [&_.select-options-panel]:max-h-[350px]"
+				className="flex-shrink-0 max-sm:w-[calc(100%_-_24px)] intention-group [&.intention-group_.select-options-panel]:max-h-[350px]"
 				editMode={editMode && !hasAppliedCurrentRecruitment}
 				necessary
 				name={$t("user.group")}
