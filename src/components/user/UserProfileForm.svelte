@@ -140,8 +140,7 @@
 			className="w-full max-sm:mt-[-1.5rem]"
 		>
 			<SingleSelectInfo
-				className="flex-shrink-0 max-sm:w-[calc(100%_-_24px)]"
-				dropdownMaxHeight={350}
+				className="flex-shrink-0 max-sm:w-[calc(100%_-_24px)] [&_.group-dropdown]:max-h-[350px]"
 				editMode={editMode && !hasAppliedCurrentRecruitment}
 				necessary
 				name={$t("user.group")}

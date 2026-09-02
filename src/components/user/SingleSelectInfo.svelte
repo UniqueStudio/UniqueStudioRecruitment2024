@@ -15,8 +15,6 @@
 		editMode?: boolean;
 		placeholder?: string;
 		className?: string;
-		/** 下拉列表最大高度(px)，默认 300 */
-		dropdownMaxHeight?: number;
 		//ly: when bind:content isn't useful, use content & onChange
 		onChange?: (content?: string) => void;
 	}
@@ -29,7 +27,6 @@
 		editMode = false,
 		placeholder = "",
 		className = "",
-		dropdownMaxHeight = 300,
 		onChange = () => {}
 	}: Props = $props();
 
@@ -85,8 +82,7 @@
 		</div>
 		{#if showItems}
 			<div
-				class="shadow-lg absolute left-0 top-[110%] z-10 max-h-[300px] w-full overflow-y-auto rounded-[4px] border-[1px] border-gray-150 bg-white p-[0.75rem_1rem] shadow-card shadow-gray-150 max-sm:hidden"
-				style:max-height="{dropdownMaxHeight}px"
+				class="group-dropdown shadow-lg absolute left-0 top-[110%] z-10 max-h-[300px] w-full overflow-y-auto rounded-[4px] border-[1px] border-gray-150 bg-white p-[0.75rem_1rem] shadow-card shadow-gray-150 max-sm:hidden"
 				transition:slide
 			>
 				{#if placeholder}
