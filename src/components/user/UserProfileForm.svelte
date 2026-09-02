@@ -53,7 +53,7 @@
 	}: Props = $props();
 
 	let groupSelected = $derived(
-		GroupGroup[0].find((g) => groups.some((selected) => Group[selected] === g)) ?? ""
+		GroupGroup.find((g) => groups.some((selected) => Group[selected] === g)) ?? ""
 	);
 
 	const updateGroups = (item?: string) => {
@@ -146,7 +146,7 @@
 				name={$t("user.group")}
 				content={groupSelected}
 				onChange={updateGroups}
-				selectItems={GroupGroup[0]}
+				selectItems={GroupGroup}
 			/>
 			{#snippet content()}
 				<p class="w-[300px]">{$t("user.groupTips")}</p>
