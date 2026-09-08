@@ -13,6 +13,7 @@
 	import { recruitment } from "../stores/recruitment";
 	import Popover from "../components/public/Popover.svelte";
 	import { latestDraft } from "../stores/latestDraft";
+	import { Message } from "../utils/Message";
 	import Modal from "../components/public/Modal.svelte";
 	import { parseTitle } from "../utils/parseTitle";
 	import { t } from "../utils/t";
@@ -28,6 +29,8 @@
 	let isUploading = $state(false);
 	let showSignUpModal = $state(false);
 	let resume: File = $state();
+	let signUpResume: File = $state();
+	let signUpFileInput: HTMLInputElement = $state();
 	let formInitialized = $state(false);
 	interface DraftFormState {
 		rank: string;
@@ -138,18 +141,33 @@
 			intro,
 			isQuick,
 			isProjectC,
-			resume
+			resume: signUpResume ?? resume
 		});
 		globalLoading.set(false);
 		if (ok) {
 			showSignUpModal = false;
+			signUpResume = undefined;
 			resume = undefined;
 		}
+	};
+	const selectSignUpResume = () => signUpFileInput.click();
+	const updateSignUpResume = () => {
+		const file = signUpFileInput.files?.[0];
+		if (file && file.size > 20 * 1024 * 1024) {
+			signUpFileInput.value = "";
+			Message.error($t("user.resumeTooLarge"));
+			return;
+		}
+		signUpResume = file;
+	};
+	const closeSignUpModal = () => {
+		showSignUpModal = false;
+		signUpResume = undefined;
 	};
 	const saveApplicationInfo = async () => {
 		if (isUploading) return;
 		isUploading = true;
-		if (resume) globalLoading.set(true);
+		if (resume || signUpResume) globalLoading.set(true);
 		const ok = await doSaveApplicationInfo({
 			rank,
 			referrer,
@@ -284,17 +302,32 @@
 		<Modal
 			className="w-[524px] max-sm:w-[280px] flex flex-col gap-[1rem] text-center p-[20px_20px]"
 			visible={showSignUpModal}
-			onCancel={() => (showSignUpModal = false)}
+			onCancel={closeSignUpModal}
 		>
 			<p>{$t("user.signUpTips")}{$parseTitle($recruitment.name)}</p>
 			<p>{$t("user.signUpTips1")}</p>
+			<div class="flex items-center justify-center gap-[0.75rem]">
+				<input
+					onchange={updateSignUpResume}
+					bind:this={signUpFileInput}
+					type="file"
+					class="hidden"
+				/>
+				<Button
+					onClick={selectSignUpResume}
+					className="border-[1px] border-[#0A84FF] p-[0.35rem_1.25rem] text-sm rounded-full text-[#0A84FF]"
+					>{signUpResume ? $t("user.reselect") : $t("user.select")}</Button
+				>
+				{#if signUpResume}
+					<p class="max-w-[200px] truncate text-sm text-text-3">{signUpResume.name}</p>
+				{/if}
+			</div>
 			<div class="flex justify-center gap-[1rem]">
 				<Button onClick={signUp} highlight className="p-[7px_30px] text-sm rounded-full"
 					>{$t("user.signUp")}</Button
 				>
-				<Button
-					onClick={() => (showSignUpModal = false)}
-					className="p-[7px_30px] text-sm rounded-full">{$t("user.cancel")}</Button
+				<Button onClick={closeSignUpModal} className="p-[7px_30px] text-sm rounded-full"
+					>{$t("user.cancel")}</Button
 				>
 			</div>
 		</Modal>

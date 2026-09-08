@@ -124,8 +124,6 @@ export async function saveApplicationInfo(form: ApplicationFormState): Promise<b
 
 	const $recruitment = get(recruitment);
 	const $userInfo = get(userInfo);
-	const hasAppliedCurrentRecruitment =
-		!!$recruitment && $recruitment.uid === $userInfo.applications[0]?.recruitment_id;
 
 	if (
 		$recruitment &&
@@ -162,7 +160,8 @@ export async function saveApplicationInfo(form: ApplicationFormState): Promise<b
 			return false;
 		}
 	} else {
-		// 未报名当前批次或流程已结束：仅保存本地草稿，文件不会保存
+		// 未报名当前批次或流程已结束：仅保存本地文本草稿。
+		// 附件在报名弹窗中随报名提交，或报名后通过编辑上传，此处不处理文件。
 		latestDraft.patchDraft({
 			rank,
 			referrer,
@@ -175,11 +174,7 @@ export async function saveApplicationInfo(form: ApplicationFormState): Promise<b
 			is_quick: isQuick === t("user.quick")
 		});
 
-		if (!hasAppliedCurrentRecruitment && resume) {
-			Message.warning(t("user.resumeNotSavedNotSignedUp"));
-		} else {
-			Message.success(t("user.localSaveSuccess"));
-		}
+		Message.success(t("user.localSaveSuccess"));
 	}
 
 	editMode.out();

@@ -157,10 +157,7 @@ export const i18nConstants = {
 			reselect: "reselect",
 			save: "save",
 			saveTips: "You have signed up for recruitment, and the data will be saved on the server.",
-			saveTips1:
-				"Your information will be saved locally. If you have not signed up for current recruitment, uploaded files will not be saved.",
-			resumeNotSavedNotSignedUp:
-				"You have not signed up for the current recruitment, so the selected file cannot be saved.",
+			saveTips1: "Your information will be saved to a local draft.",
 			cancel: "cancel",
 			signUp: "sign up",
 			signUpConfirm:
@@ -171,6 +168,8 @@ export const i18nConstants = {
 				"Please carefully verify that your basic personal information is accurate and that all attachments have been uploaded correctly. Please note that after successful registration, all information except your chosen preferred group can still be modified.",
 			resumePopover:
 				"You can upload resumes, portfolios, etc. If you want to upload multiple files, please compress them into .zip . Maximum size is 20MB",
+			uploadDisabledTips:
+				"Since you haven't signed up yet, attachments cannot be saved to the server. Please upload attachments during or after sign-up.",
 			checkInfo: "{key} is needed!",
 			checkQQ: "QQ account is invalid!Please visit SSO to change your QQ",
 			checkDeprecatedGroups: "Group is not contained in current recruitment",
@@ -315,8 +314,7 @@ export const i18nConstants = {
 			placeholder: "请输入",
 			save: "保存",
 			saveTips: "您已报名招新，数据将会保存在服务端",
-			saveTips1: "信息将保存到本地。若未报名当前批次，所选附件不会被保存",
-			resumeNotSavedNotSignedUp: "您尚未报名当前批次，所选附件无法保存",
+			saveTips1: "信息将保存到本地草稿。",
 			cancel: "取消",
 			signUp: "报名",
 			signUpConfirm: "你将报名{recruitment}，基本信息，简历，作品集将会上传，请认真填写",
@@ -324,7 +322,7 @@ export const i18nConstants = {
 			signUpTips1:
 				"请您仔细核对所填写的个人基本信息是否准确无误，并确认所有附件已正确上传。成功报名后，除了所选择的意向组别外，其他信息依然可以修改。",
 			resumePopover: "可以上传简历，作品集等，若要上传多个文件，请自行压缩成.zip。最大大小为20MB",
-			uploadDisabledTips: "请先报名当前批次后再上传附件。",
+			uploadDisabledTips: "因为现在还没有报名，附件无法保存到服务器。请在报名时或报名后再上传附件",
 			checkInfo: "请填写{key}",
 			checkQQ: "QQ号格式不正确，请前往SSO修改QQ",
 			checkDeprecatedGroups: "意向组别不在本次招新范围内，请重新选择",
