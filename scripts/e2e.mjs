@@ -91,10 +91,24 @@ try {
 	await page.reload({ waitUntil: "domcontentloaded" });
 	await page.getByText("个人信息", { exact: true }).first().click();
 	await page.getByText("报名", { exact: true }).first().waitFor();
+	// 未报名：附件上传按钮禁用并展示提示
 	await page.getByText("编辑", { exact: true }).click();
+	// 提示同时渲染在移动端按钮（sm:hidden）与桌面文案中，取 DOM 中靠后的桌面可见元素
+	await page
+		.getByText("因为现在还没有报名，附件无法保存到服务器", { exact: false })
+		.last()
+		.waitFor();
+	assert.equal(await page.getByText("选择文件", { exact: true }).first().isDisabled(), true);
 	await page.getByText("保存", { exact: true }).click();
 	await page.getByText("本地保存成功", { exact: true }).waitFor();
+	// 报名弹窗内上传附件并随报名提交
 	await page.getByText("报名", { exact: true }).first().click();
+	await page.locator('input[type="file"]').setInputFiles({
+		name: "resume.pdf",
+		mimeType: "application/pdf",
+		buffer: Buffer.from("mock resume")
+	});
+	await page.getByText("resume.pdf", { exact: true }).waitFor();
 	await page.getByText("报名", { exact: true }).last().click();
 	await page.getByText("报名成功", { exact: true }).waitFor();
 
@@ -103,6 +117,13 @@ try {
 		signUpState.data.mutations.some(
 			(entry) => entry.method === "POST" && entry.path === "/applications/"
 		)
+	);
+	const signUpMutation = signUpState.data.mutations.find(
+		(entry) => entry.method === "POST" && entry.path === "/applications/"
+	);
+	assert.ok(
+		signUpMutation.fields.resume !== undefined,
+		"resume file part should be submitted with sign-up"
 	);
 
 	await page.screenshot({ path: "test-results/e2e-final.png", fullPage: true });

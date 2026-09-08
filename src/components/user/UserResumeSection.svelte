@@ -30,6 +30,9 @@
 	let fileInput: HTMLInputElement = $state();
 
 	const selectResume = () => fileInput.click();
+	const uploadTips = $derived(
+		hasAppliedCurrentRecruitment ? $t("user.resumePopover") : $t("user.uploadDisabledTips")
+	);
 	const updateResume = () => {
 		const file = fileInput.files?.[0];
 		if (file && file.size > 20 * 1024 * 1024) {
@@ -49,12 +52,13 @@
 		<button
 			type="button"
 			onclick={selectResume}
-			class="flex border-0 bg-transparent p-0 text-left sm:hidden"
+			disabled={!hasAppliedCurrentRecruitment}
+			class="flex border-0 bg-transparent p-0 text-left disabled:cursor-not-allowed sm:hidden"
 		>
 			<img src={uploadSvg} alt="upload" />
 			<div>
 				<p class="my-[4px] text-sm font-bold">{$t("user.upload")}</p>
-				<p class="text-xs text-text-3">{$t("user.resumePopover")}</p>
+				<p class="text-xs text-text-3">{uploadTips}</p>
 				{#if resume}
 					<p class="mt-[4px] text-xs">{resume.name}</p>
 				{/if}
@@ -62,7 +66,7 @@
 		</button>
 		<p class="text-lg font-bold max-sm:hidden">{$t("user.upload")}</p>
 		<p class="px-[3rem] text-center text-xs text-text-3 max-sm:hidden">
-			{$t("user.resumePopover")}
+			{uploadTips}
 		</p>
 		{#if resume}
 			<p class="max-sm:hidden">{resume.name}</p>
@@ -80,8 +84,9 @@
 			</button>
 		{/if}
 		<button
-			class="cursor-pointer rounded-[0.5rem] border-[1px] border-[#0A84FF] p-[0.5rem_2rem] text-[#0A84FF] transition-all hover:bg-[#0A84FF] hover:text-white max-sm:hidden"
+			class="cursor-pointer rounded-[0.5rem] border-[1px] border-[#0A84FF] p-[0.5rem_2rem] text-[#0A84FF] transition-all hover:bg-[#0A84FF] hover:text-white disabled:cursor-not-allowed disabled:border-text-3 disabled:text-text-3 disabled:hover:bg-transparent disabled:hover:text-text-3 max-sm:hidden"
 			onclick={selectResume}
+			disabled={!hasAppliedCurrentRecruitment}
 		>
 			{resume ? $t("user.reselect") : $t("user.select")}
 		</button>
